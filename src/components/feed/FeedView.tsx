@@ -45,9 +45,9 @@ export const FeedView: React.FC = () => {
             <div className="hero-badge-row">
               <span className="badge badge-gold">
                 <Sparkles size={13} />
-                <span>ECOSSISTEMA DE ALTO PADRÃO</span>
+                <span>ECOSSISTEMA EXECUTIVO</span>
               </span>
-              <span className="badge badge-moss">ACESSO EXCLUSIVO</span>
+              <span className="badge badge-moss">ACESSO VIP</span>
             </div>
 
             <h1 className="hero-slogan-title">
@@ -71,7 +71,7 @@ export const FeedView: React.FC = () => {
               </div>
               <div className="hero-metric-item">
                 <span className="metric-val">24/7</span>
-                <span className="metric-lbl">Academy & Networking</span>
+                <span className="metric-lbl">Conexão & Rede</span>
               </div>
             </div>
           </div>

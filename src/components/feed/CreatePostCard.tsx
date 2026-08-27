@@ -65,7 +65,7 @@ export const CreatePostCard: React.FC = () => {
 
         <div className="create-post-actions-row">
           <div className="category-select-group">
-            <span className="category-label">Núcleo / Categoria:</span>
+            <span className="category-label">Núcleo:</span>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as Post['category'])}
