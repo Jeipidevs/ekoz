@@ -421,15 +421,29 @@
    ========================================================================== */
 .feed-layout-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) 340px;
   gap: 2rem;
   align-items: start;
+  width: 100%;
+  max-width: 100%;
 }
 
 .feed-main-column {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+}
+
+.feed-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
 }
 
 /* Hero Slogan Card */
@@ -3159,7 +3173,7 @@
 /* Responsive Overrides */
 @media (max-width: 1024px) {
   .feed-layout-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .hide-tablet {
     display: none !important;
@@ -3193,7 +3207,7 @@
     padding: 0 0.75rem;
     height: 58px;
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
     box-sizing: border-box;
   }
   .navbar-left {
@@ -3249,14 +3263,20 @@
 
   /* Feed & Hero Slogan Mobile Optimization */
   .feed-layout-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) !important;
     gap: 1.25rem;
-    width: 100%;
-    max-width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
   }
   .feed-main-column {
-    width: 100%;
-    max-width: 100%;
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .feed-right-column {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
   .hero-slogan-card {
     padding: 1.25rem 1rem;
@@ -3463,8 +3483,8 @@
 
   /* Chat Drawer Mobile */
   .chat-drawer {
-    width: 100vw;
-    max-width: 100vw;
+    width: 100%;
+    max-width: 100%;
   }
 
   .page-wrapper {
