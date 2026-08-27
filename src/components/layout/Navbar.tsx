@@ -63,9 +63,9 @@ export const Navbar: React.FC = () => {
         </button>
 
         {/* Upgrade / Black Access CTA */}
-        <button onClick={handleOpenUpgrade} className="btn btn-gold btn-sm btn-upgrade">
+        <button onClick={handleOpenUpgrade} className="btn btn-gold btn-sm btn-upgrade" title="Acesso Ekoz Black">
           <Crown size={15} />
-          <span>Ekoz Black</span>
+          <span className="hide-mobile">Ekoz Black</span>
         </button>
 
         {/* Direct Messages */}
