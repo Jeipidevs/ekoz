@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { WhatsAppService } from '../services/whatsapp.service.js';
 import { prisma } from '../services/prisma.service.js';
+import { sendServerError } from '../middleware/error.middleware.js';
 
 export class WhatsAppController {
   public static async sendPush(req: Request, res: Response): Promise<void> {
@@ -53,7 +54,7 @@ export class WhatsAppController {
         results,
       });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao disparar WhatsApp Push' });
+      sendServerError(res, error, 'Erro ao disparar WhatsApp Push');
     }
   }
 
@@ -76,7 +77,7 @@ export class WhatsAppController {
 
       res.json(result);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro no teste de disparo WhatsApp' });
+      sendServerError(res, error, 'Erro no teste de disparo WhatsApp');
     }
   }
 }

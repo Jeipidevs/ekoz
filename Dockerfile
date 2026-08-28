@@ -27,7 +27,7 @@ RUN npm install
 COPY server/tsconfig.json ./
 COPY server/src ./src/
 
-ENV DATABASE_URL="file:./prisma/dev.db"
+ENV DATABASE_URL="file:/app/server/prisma/dev.db"
 RUN npx prisma generate
 RUN npx prisma db push
 RUN npx tsx prisma/seed.ts
@@ -41,10 +41,10 @@ FROM node:20-alpine AS runner
 # Instalar Nginx no Alpine
 RUN apk update && apk add --no-cache nginx
 
-# Configurações do Nginx em ambos os diretórios padrão
-RUN mkdir -p /run/nginx /usr/share/nginx/html /var/log/nginx /etc/nginx/conf.d /etc/nginx/http.d
+# Configuração do Nginx (Alpine inclui http.d dentro do bloco http{}; conf.d é
+# incluído fora dele, então um bloco server{} ali quebra o nginx -t)
+RUN mkdir -p /run/nginx /usr/share/nginx/html /var/log/nginx /etc/nginx/http.d
 COPY nginx.conf /etc/nginx/http.d/default.conf
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copiar Frontend compilado
 COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
@@ -53,7 +53,7 @@ COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
 WORKDIR /app/server
 ENV NODE_ENV=production
 ENV PORT=3001
-ENV DATABASE_URL="file:./prisma/dev.db"
+ENV DATABASE_URL="file:/app/server/prisma/dev.db"
 
 COPY server/package*.json ./
 COPY server/prisma ./prisma/

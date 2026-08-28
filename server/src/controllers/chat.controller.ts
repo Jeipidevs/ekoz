@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../services/prisma.service.js';
+import { sendServerError } from '../middleware/error.middleware.js';
 
 export class ChatController {
   public static async listConversations(req: Request, res: Response): Promise<void> {
@@ -58,7 +59,7 @@ export class ChatController {
 
       res.json(result);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao listar conversas' });
+      sendServerError(res, error, 'Erro ao listar conversas');
     }
   }
 
@@ -104,7 +105,7 @@ export class ChatController {
 
       res.json(formatted);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao buscar mensagens' });
+      sendServerError(res, error, 'Erro ao buscar mensagens');
     }
   }
 }

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../services/prisma.service.js';
+import { sendServerError } from '../middleware/error.middleware.js';
 
 export class ExperiencesController {
   public static async listExperiences(_req: Request, res: Response): Promise<void> {
@@ -24,7 +25,7 @@ export class ExperiencesController {
 
       res.json(formatted);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao listar expedições' });
+      sendServerError(res, error, 'Erro ao listar expedições');
     }
   }
 
@@ -62,7 +63,7 @@ export class ExperiencesController {
         applicationId: application.id,
       });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao submeter candidatura para expedição' });
+      sendServerError(res, error, 'Erro ao submeter candidatura para expedição');
     }
   }
 }

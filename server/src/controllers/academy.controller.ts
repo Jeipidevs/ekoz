@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../services/prisma.service.js';
+import { sendServerError } from '../middleware/error.middleware.js';
 
 export class AcademyController {
   public static async listCourses(req: Request, res: Response): Promise<void> {
@@ -67,7 +68,7 @@ export class AcademyController {
 
       res.json(formatted);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao listar masterclasses da Academy' });
+      sendServerError(res, error, 'Erro ao listar masterclasses da Academy');
     }
   }
 
@@ -115,7 +116,7 @@ export class AcademyController {
         completed: updated.completed,
       });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao atualizar progresso da aula' });
+      sendServerError(res, error, 'Erro ao atualizar progresso da aula');
     }
   }
 
@@ -142,7 +143,7 @@ export class AcademyController {
 
       res.json(comments);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao buscar discussões da aula' });
+      sendServerError(res, error, 'Erro ao buscar discussões da aula');
     }
   }
 
@@ -183,7 +184,7 @@ export class AcademyController {
 
       res.status(201).json(comment);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao comentar na aula' });
+      sendServerError(res, error, 'Erro ao comentar na aula');
     }
   }
 }

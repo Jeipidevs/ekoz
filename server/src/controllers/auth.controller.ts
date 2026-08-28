@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../services/prisma.service.js';
 import { config } from '../config/index.js';
+import { sendServerError } from '../middleware/error.middleware.js';
 
 export class AuthController {
   public static async register(req: Request, res: Response): Promise<void> {
@@ -79,7 +80,7 @@ export class AuthController {
         refreshToken,
       });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao registrar membro' });
+      sendServerError(res, error, 'Erro ao registrar membro');
     }
   }
 
@@ -144,7 +145,7 @@ export class AuthController {
         refreshToken,
       });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao realizar login' });
+      sendServerError(res, error, 'Erro ao realizar login');
     }
   }
 
@@ -184,7 +185,7 @@ export class AuthController {
         },
       });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao buscar perfil' });
+      sendServerError(res, error, 'Erro ao buscar perfil');
     }
   }
 
@@ -233,7 +234,7 @@ export class AuthController {
         },
       });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao atualizar perfil' });
+      sendServerError(res, error, 'Erro ao atualizar perfil');
     }
   }
 }

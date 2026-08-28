@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../services/prisma.service.js';
+import { sendServerError } from '../middleware/error.middleware.js';
 
 export class UsersController {
   public static async listMembers(req: Request, res: Response): Promise<void> {
@@ -50,7 +51,7 @@ export class UsersController {
 
       res.json(formatted);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao listar membros' });
+      sendServerError(res, error, 'Erro ao listar membros');
     }
   }
 
@@ -90,7 +91,7 @@ export class UsersController {
         skills: JSON.parse(user.skills || '[]'),
       });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao buscar membro' });
+      sendServerError(res, error, 'Erro ao buscar membro');
     }
   }
 }

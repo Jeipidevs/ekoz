@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../services/prisma.service.js';
+import { sendServerError } from '../middleware/error.middleware.js';
 
 export class NotificationsController {
   public static async listNotifications(req: Request, res: Response): Promise<void> {
@@ -27,7 +28,7 @@ export class NotificationsController {
 
       res.json(formatted);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao listar notificações' });
+      sendServerError(res, error, 'Erro ao listar notificações');
     }
   }
 
@@ -47,7 +48,7 @@ export class NotificationsController {
 
       res.json({ success: true });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao marcar notificação como lida' });
+      sendServerError(res, error, 'Erro ao marcar notificação como lida');
     }
   }
 
@@ -65,7 +66,7 @@ export class NotificationsController {
 
       res.json({ success: true });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao marcar notificações como lidas' });
+      sendServerError(res, error, 'Erro ao marcar notificações como lidas');
     }
   }
 }

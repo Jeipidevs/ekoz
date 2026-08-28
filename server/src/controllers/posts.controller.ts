@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../services/prisma.service.js';
 import { SocketService } from '../services/socket.service.js';
+import { sendServerError } from '../middleware/error.middleware.js';
 
 export class PostsController {
   public static async listPosts(req: Request, res: Response): Promise<void> {
@@ -82,7 +83,7 @@ export class PostsController {
 
       res.json(formattedPosts);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao listar publicações' });
+      sendServerError(res, error, 'Erro ao listar publicações');
     }
   }
 
@@ -145,7 +146,7 @@ export class PostsController {
 
       res.status(201).json(formatted);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao criar publicação' });
+      sendServerError(res, error, 'Erro ao criar publicação');
     }
   }
 
@@ -190,7 +191,7 @@ export class PostsController {
         likesCount,
       });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao curtir publicação' });
+      sendServerError(res, error, 'Erro ao curtir publicação');
     }
   }
 
@@ -243,7 +244,7 @@ export class PostsController {
         timestamp: comment.createdAt.toISOString(),
       });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao adicionar comentário' });
+      sendServerError(res, error, 'Erro ao adicionar comentário');
     }
   }
 
@@ -269,7 +270,7 @@ export class PostsController {
 
       res.json({ pinned: updated.pinned });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao fixar publicação' });
+      sendServerError(res, error, 'Erro ao fixar publicação');
     }
   }
 }

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../services/prisma.service.js';
+import { sendServerError } from '../middleware/error.middleware.js';
 
 export class MarketplaceController {
   public static async listCores(_req: Request, res: Response): Promise<void> {
@@ -23,7 +24,7 @@ export class MarketplaceController {
 
       res.json(formatted);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao listar núcleos temáticos' });
+      sendServerError(res, error, 'Erro ao listar núcleos temáticos');
     }
   }
 
@@ -69,7 +70,7 @@ export class MarketplaceController {
 
       res.json(formatted);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao listar empresas do Marketplace' });
+      sendServerError(res, error, 'Erro ao listar empresas do Marketplace');
     }
   }
 
@@ -133,7 +134,7 @@ export class MarketplaceController {
         featured: business.featured,
       });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao cadastrar negócio no Marketplace' });
+      sendServerError(res, error, 'Erro ao cadastrar negócio no Marketplace');
     }
   }
 }

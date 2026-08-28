@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { CaktoService } from '../services/cakto.service.js';
+import { sendServerError } from '../middleware/error.middleware.js';
 
 export class CaktoController {
   public static async createOrder(req: Request, res: Response): Promise<void> {
@@ -25,7 +26,7 @@ export class CaktoController {
 
       res.status(201).json(order);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao processar pedido Cakto' });
+      sendServerError(res, error, 'Erro ao processar pedido Cakto');
     }
   }
 
@@ -37,8 +38,7 @@ export class CaktoController {
 
       res.status(200).json(result);
     } catch (error: any) {
-      console.error('❌ Erro no processamento do webhook Cakto:', error);
-      res.status(500).json({ error: error.message || 'Erro interno no processamento de webhook' });
+      sendServerError(res, error, 'Erro interno no processamento de webhook');
     }
   }
 }

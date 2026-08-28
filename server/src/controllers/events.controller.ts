@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../services/prisma.service.js';
+import { sendServerError } from '../middleware/error.middleware.js';
 
 export class EventsController {
   public static async listEvents(req: Request, res: Response): Promise<void> {
@@ -39,7 +40,7 @@ export class EventsController {
 
       res.json(formatted);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao listar eventos' });
+      sendServerError(res, error, 'Erro ao listar eventos');
     }
   }
 
@@ -84,7 +85,7 @@ export class EventsController {
         isRegistered,
       });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao confirmar presença no evento' });
+      sendServerError(res, error, 'Erro ao confirmar presença no evento');
     }
   }
 }
