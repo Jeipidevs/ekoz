@@ -41,9 +41,10 @@ FROM node:20-alpine AS runner
 # Instalar Nginx no Alpine
 RUN apk update && apk add --no-cache nginx
 
-# Configurações do Nginx
-RUN mkdir -p /run/nginx /usr/share/nginx/html /var/log/nginx
+# Configurações do Nginx em ambos os diretórios padrão
+RUN mkdir -p /run/nginx /usr/share/nginx/html /var/log/nginx /etc/nginx/conf.d /etc/nginx/http.d
 COPY nginx.conf /etc/nginx/http.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copiar Frontend compilado
 COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
