@@ -27,7 +27,10 @@ RUN npm install
 COPY server/tsconfig.json ./
 COPY server/src ./src/
 
+ENV DATABASE_URL="file:./prisma/dev.db"
 RUN npx prisma generate
+RUN npx prisma db push
+RUN npx tsx prisma/seed.ts
 RUN npm run build
 
 # ==========================================
@@ -39,7 +42,7 @@ FROM node:20-alpine AS runner
 RUN apk update && apk add --no-cache nginx
 
 # Configurações do Nginx
-RUN mkdir -p /run/nginx /usr/share/nginx/html
+RUN mkdir -p /run/nginx /usr/share/nginx/html /var/log/nginx
 COPY nginx.conf /etc/nginx/http.d/default.conf
 
 # Copiar Frontend compilado
@@ -57,13 +60,15 @@ COPY server/prisma ./prisma/
 RUN npm install --omit=dev
 RUN npx prisma generate
 
+# Copiar build e banco de dados pré-semeado
 COPY --from=backend-build /app/server/dist ./dist
+COPY --from=backend-build /app/server/prisma/dev.db ./prisma/dev.db
 
 # Script de entrada
 WORKDIR /app
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
 
-EXPOSE 80 3001
+EXPOSE 80
 
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD ["/app/docker-entrypoint.sh"]
