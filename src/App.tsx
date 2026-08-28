@@ -12,10 +12,11 @@ import { VideoCallRoom } from './components/videocall/VideoCallRoom';
 import { ChatDrawer } from './components/chat/ChatDrawer';
 import { WhatsAppPushModal } from './components/notifications/WhatsAppPushModal';
 import { CaktoCheckoutModal } from './components/checkout/CaktoCheckoutModal';
+import { AuthModal } from './components/auth/AuthModal';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 
 const AppContent: React.FC = () => {
-  const { activeTab } = useEkoz();
+  const { activeTab, authModalOpen, setAuthModalOpen } = useEkoz();
 
   return (
     <div className="ekoz-app-root">
@@ -37,6 +38,7 @@ const AppContent: React.FC = () => {
       </div>
 
       {/* Persistent Global Modals & Drawers */}
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
       <ChatDrawer />
       <WhatsAppPushModal />
       <CaktoCheckoutModal />

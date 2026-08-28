@@ -1,0 +1,288 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("Member") // CEO, Mentor, Admin, Member, Black Member
+  headline     String   @default("")
+  company      String   @default("")
+  avatar       String   @default("/ezekiel.jpg")
+  bio          String   @default("")
+  verified     Boolean  @default(false)
+  skills       String   @default("[]") // JSON string of string[]
+  location     String   @default("")
+  whatsapp     String?
+  instagram    String?
+  linkedin     String?
+  plan         String   @default("Membro Ekoz") // Membro Ekoz, Ekoz Black, Founding Partner
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  refreshTokens          RefreshToken[]
+  posts                  Post[]
+  comments               Comment[]
+  likes                  Like[]
+  businesses             MarketplaceBusiness[]
+  lessonProgresses       UserLessonProgress[]
+  lessonComments         LessonComment[]
+  eventRegistrations     EventRegistration[]
+  experienceApplications ExperienceApplication[]
+  sentMessages           ChatMessage[]
+  notifications          Notification[]
+  subscriptions          Subscription[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Post {
+  id        String    @id @default(uuid())
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  category  String    @default("Negócios") // Avisos Oficiais, Negócios, Insights & Estratégia, Oportunidades
+  mediaUrl  String?
+  pinned    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  comments  Comment[]
+  likes     Like[]
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+}
+
+model ThematicCore {
+  id          String                @id @default(uuid())
+  name        String
+  slug        String                @unique
+  icon        String
+  description String
+  businesses  MarketplaceBusiness[]
+  createdAt   DateTime              @default(now())
+}
+
+model MarketplaceBusiness {
+  id          String       @id @default(uuid())
+  name        String
+  coreId      String
+  core        ThematicCore @relation(fields: [coreId], references: [id], onDelete: Cascade)
+  headline    String
+  description String
+  founderName String
+  founderRole String
+  avatar      String
+  coverImage  String?
+  tags        String       @default("[]") // JSON array of string
+  whatsapp    String
+  website     String?
+  location    String
+  verified    Boolean      @default(true)
+  featured    Boolean      @default(false)
+  ownerId     String?
+  owner       User?        @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Course {
+  id               String         @id @default(uuid())
+  title            String
+  instructorName   String
+  instructorRole   String
+  instructorAvatar String
+  coverImage       String
+  category         String // Alta Performance, Gestão & Escala, Liderança & Inteligência, Lifestyle & Network
+  duration         String
+  description      String
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  modules          CourseModule[]
+}
+
+model CourseModule {
+  id        String   @id @default(uuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title     String
+  order     Int      @default(0)
+  lessons   Lesson[]
+  createdAt DateTime @default(now())
+}
+
+model Lesson {
+  id            String               @id @default(uuid())
+  moduleId      String
+  module        CourseModule         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title         String
+  duration      String
+  videoUrl      String
+  summary       String
+  order         Int                  @default(0)
+  resources     String               @default("[]") // JSON of LessonResource[]
+  createdAt     DateTime             @default(now())
+  userProgress  UserLessonProgress[]
+  lessonComments LessonComment[]
+}
+
+model UserLessonProgress {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  completed   Boolean  @default(false)
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, lessonId])
+}
+
+model LessonComment {
+  id        String   @id @default(uuid())
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Event {
+  id            String              @id @default(uuid())
+  title         String
+  type          String // Presencial, Online, Masterclass Exclusiva, Jantar Executivo
+  date          String
+  time          String
+  location      String
+  speakerName   String
+  speakerRole   String
+  description   String
+  image         String
+  totalSpots    Int                 @default(50)
+  createdAt     DateTime            @default(now())
+  registrations EventRegistration[]
+}
+
+model EventRegistration {
+  id        String   @id @default(uuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    String   @default("CONFIRMED") // CONFIRMED, WAITLIST, CANCELLED
+  createdAt DateTime @default(now())
+
+  @@unique([eventId, userId])
+}
+
+model Experience {
+  id             String                  @id @default(uuid())
+  title          String
+  subtitle       String
+  destination    String
+  dates          String
+  coverImage     String
+  gallery        String                  @default("[]") // JSON string array
+  highlights     String                  @default("[]") // JSON string array
+  description    String
+  status         String                  @default("Vagas Abertas") // Vagas Abertas, Últimas Vagas, Exclusivo Black
+  investment     String
+  createdAt      DateTime                @default(now())
+  applications   ExperienceApplication[]
+}
+
+model ExperienceApplication {
+  id           String     @id @default(uuid())
+  experienceId String
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notes        String?
+  status       String     @default("PENDING") // PENDING, APPROVED, CONTACTED
+  createdAt    DateTime   @default(now())
+
+  @@unique([experienceId, userId])
+}
+
+model ChatConversation {
+  id            String        @id @default(uuid())
+  user1Id       String
+  user2Id       String
+  lastMessageAt DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+  messages      ChatMessage[]
+
+  @@unique([user1Id, user2Id])
+}
+
+model ChatMessage {
+  id             String           @id @default(uuid())
+  conversationId String
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User             @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  text           String
+  isRead         Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String   @default("announcement") // whatsapp, lesson, announcement, connection
+  title       String
+  description String
+  isRead      Boolean  @default(false)
+  actionUrl   String?
+  createdAt   DateTime @default(now())
+}
+
+model Subscription {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan          String    // Membro Ekoz, Ekoz Black, Founding Partner
+  status        String    @default("ACTIVE") // ACTIVE, PENDING, CANCELLED, PAST_DUE
+  caktoOrderId  String?
+  amount        Float     @default(0.0)
+  paymentMethod String?   // pix, credit_card
+  expiresAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}

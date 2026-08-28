@@ -38,6 +38,35 @@ Este documento registra todas as funcionalidades, decisões arquiteturais, corre
 
 ## 🚀 Histórico de Versões
 
+### [v2.0.0] — Arquitetura de Backend Completa, Prisma ORM, Socket.IO & Integrações (28/08/2026)
+
+#### 🏛️ Arquitetura de Backend Implementada (`server/`):
+- **Core Node.js + TypeScript + Express**: Servidor HTTP modular, com middlewares de segurança (`helmet`, `cors`), logging com `morgan`, e parser JSON com limites expandidos para upload.
+- **Camada de Banco de Dados Relacional (Prisma ORM)**:
+  - Modelagem e relacionamentos completos de 13 entidades: `User`, `RefreshToken`, `Post`, `Comment`, `Like`, `ThematicCore`, `MarketplaceBusiness`, `Course`, `CourseModule`, `Lesson`, `UserLessonProgress`, `LessonComment`, `Event`, `EventRegistration`, `Experience`, `ExperienceApplication`, `ChatConversation`, `ChatMessage`, `Notification`, `Subscription`.
+  - Script de seed rico (`server/prisma/seed.ts`) com credenciais executivas de Ezekiel Dall'Bello (`ezekiel@ekoz.com.br`), membros notáveis, masterclasses em vídeo, publicações fixadas e negócios em múltiplos núcleos.
+- **Autenticação Segura & RBAC**:
+  - JWT Tokens (Access Token com 7 dias de validade + Refresh Tokens seguros armazenados no banco).
+  - Criptografia de senhas com `bcryptjs`.
+  - Controle de papéis (*CEO, Mentor, Admin, Member, Black Member*) e proteção de rotas exclusivas.
+- **Comunicação em Tempo Real (Socket.IO)**:
+  - Gateway de WebSockets com autenticação JWT.
+  - Salas privadas de membros (`user:{id}`) para mensagens diretas instantâneas e broadcast global de timeline (`room:feed`).
+  - Indicadores de digitação e emissão de eventos em tempo real.
+- **Motor de Disparos de Notificações WhatsApp (`WhatsAppService`)**:
+  - Formatador de templates com identidade nobre Ekoz para avisos da liderança, novas aulas da Academy, mensagens de networking e confirmações de compra.
+  - Compatibilidade nativa com Z-API, Evolution API e Meta Cloud API.
+- **Gateway de Pagamento & Webhooks Cakto (`CaktoService`)**:
+  - Geração de cobranças PIX copia-e-cola e Cartão de Crédito.
+  - Webhook listener idempotente com atualização instantânea do plano do membro para *Ekoz Black* e upgrade de role.
+- **Conexão Frontend <-> Backend**:
+  - Criação do cliente central de API (`src/services/api.ts`) e WebSocket (`src/services/socket.ts`).
+  - Atualização do `EkozContext.tsx` com sincronização contínua e modo offline/fallback resiliente.
+  - Modal de autenticação executiva (`AuthModal.tsx`) para login, cadastro e troca rápida de perfis em 1 clique.
+  - Dockerfile dedicado para deploy do backend (`server/Dockerfile`) e reverse proxy configurado no `nginx.conf`.
+
+---
+
 ### [v1.1.0] — Otimização Total para Smartphones & Deploy na VPS (27/08/2026)
 
 #### 📱 Responsividade Mobile (Correção do Corte Lateral em Smartphones):

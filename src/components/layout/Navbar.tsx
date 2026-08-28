@@ -19,6 +19,7 @@ export const Navbar: React.FC = () => {
     setWhatsappPushOpen,
     setCheckoutOpen,
     setSelectedPlanForCheckout,
+    setAuthModalOpen,
   } = useEkoz();
 
   const [showNotifications, setShowNotifications] = useState(false);
@@ -134,7 +135,12 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* User Pill */}
-        <div className="navbar-user-pill">
+        <div
+          className="navbar-user-pill"
+          onClick={() => setAuthModalOpen(true)}
+          style={{ cursor: 'pointer' }}
+          title="Clique para alternar perfil ou autenticar"
+        >
           <div className="user-avatar-wrap">
             <img src={user.avatar} alt={user.name} className="user-avatar-img" />
             <span className="online-indicator"></span>
