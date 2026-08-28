@@ -38,6 +38,30 @@ Este documento registra todas as funcionalidades, decisões arquiteturais, corre
 
 ## 🚀 Histórico de Versões
 
+### [v2.1.0] — Container Unificado Full-Stack & Suíte de Testes de Integração Automatizada (28/08/2026)
+
+#### 🐳 Container Unificado Full-Stack (Zero-Config no EasyPanel):
+- **Dockerfile Multi-Stage Unificado**: Build conjunto do Frontend (React 19 + Vite) e Backend (Node.js + Prisma + TypeScript).
+- **Runtime Nginx + Node em Alpine**: Nginx servindo assets estáticos de altíssima performance na porta 80 e efetuando reverse proxy transparente para `/api/` e `/socket.io/` no Node.js (porta 3001).
+- **Script de Inicialização Inteligente (`docker-entrypoint.sh`)**: Execução automática de migrações e seed do banco de dados relacional caso ainda não exista no primeiro startup.
+- **Auto-Detecção de Host no Frontend**: `api.ts` e `socket.ts` agora alternam dinamicamente entre URLs locais de desenvolvimento (`localhost:3001`) e rotas relativas seguras em produção (`/api/v1` e `window.location.origin`).
+
+#### 🧪 Suíte de Testes de Integração Automatizada (`server/scripts/test-integrations.ts`):
+- **12 Testes End-to-End com 100% de Sucesso**:
+  1. *API Health Check*: Status online e metadados oficiais do ecossistema Ekoz.
+  2. *Login Executivo do CEO*: Geração de token JWT para Ezekiel Dall'Bello.
+  3. *Cadastro de Novo Membro*: Registro e concessão de token para empresários.
+  4. *Feed Social*: Publicação na Ágora com broadcast em tempo real via WebSocket.
+  5. *Interações Sociais*: Curtida e comentário persistidos no banco de dados.
+  6. *Braço Educacional*: Listagem de masterclasses e marcação de progresso de aula.
+  7. *Marketplace B2B*: Cadastro de empresa e vinculação a núcleo temático.
+  8. *Eventos & Cúpulas*: Confirmação de presença (RSVP) com controle de vagas.
+  9. *Expedições de Luxo*: Submissão de candidatura para imersões VIP.
+  10. *Gateway Cakto Webhook*: Simulação de pagamento aprovado com upgrade instantâneo para *Ekoz Black*.
+  11. *WhatsApp Engine*: Formatação de templates nobres e simulação de push notification.
+
+---
+
 ### [v2.0.0] — Arquitetura de Backend Completa, Prisma ORM, Socket.IO & Integrações (28/08/2026)
 
 #### 🏛️ Arquitetura de Backend Implementada (`server/`):

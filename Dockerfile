@@ -1,21 +1,69 @@
-# Multi-stage Dockerfile para build e deploy do Ekoz no EasyPanel
-FROM node:20-alpine AS build
+# ==========================================
+# 1. Build do Frontend React 19 (Vite)
+# ==========================================
+FROM node:20-alpine AS frontend-build
+WORKDIR /app/frontend
 
-WORKDIR /app
-
-# Instalar dependências
 COPY package*.json ./
 RUN npm install
 
-# Copiar arquivos e compilar
-COPY . .
+COPY tsconfig*.json vite.config.ts index.html ./
+COPY public ./public
+COPY src ./src
+
 RUN npm run build
 
-# Servidor Nginx de produção
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# ==========================================
+# 2. Build do Backend Node.js (TypeScript + Prisma)
+# ==========================================
+FROM node:20-alpine AS backend-build
+WORKDIR /app/server
 
-EXPOSE 80
+COPY server/package*.json ./
+COPY server/prisma ./prisma/
 
-CMD ["nginx", "-g", "daemon off;"]
+RUN npm install
+
+COPY server/tsconfig.json ./
+COPY server/src ./src/
+
+RUN npx prisma generate
+RUN npm run build
+
+# ==========================================
+# 3. Runtime Unificado de Produção (Nginx + Node 20)
+# ==========================================
+FROM node:20-alpine AS runner
+
+# Instalar Nginx no Alpine
+RUN apk update && apk add --no-cache nginx
+
+# Configurações do Nginx
+RUN mkdir -p /run/nginx /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/http.d/default.conf
+
+# Copiar Frontend compilado
+COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
+
+# Configurar Backend
+WORKDIR /app/server
+ENV NODE_ENV=production
+ENV PORT=3001
+ENV DATABASE_URL="file:./prisma/dev.db"
+
+COPY server/package*.json ./
+COPY server/prisma ./prisma/
+
+RUN npm install --omit=dev
+RUN npx prisma generate
+
+COPY --from=backend-build /app/server/dist ./dist
+
+# Script de entrada
+WORKDIR /app
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+
+EXPOSE 80 3001
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
