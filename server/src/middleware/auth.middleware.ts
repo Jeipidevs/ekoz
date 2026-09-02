@@ -9,6 +9,7 @@ export interface AuthenticatedUser {
   role: string;
   plan: string;
   name: string;
+  active: boolean;
 }
 
 declare global {
@@ -32,10 +33,10 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
-      select: { id: true, email: true, role: true, plan: true, name: true },
+      select: { id: true, email: true, role: true, plan: true, name: true, active: true },
     });
 
-    if (!user) {
+    if (!user || !user.active) {
       res.status(401).json({ error: 'Usuário não encontrado ou inativo' });
       return;
     }
@@ -55,7 +56,7 @@ export const optionalAuthenticate = async (req: Request, _res: Response, next: N
       const decoded = jwt.verify(token, config.jwtSecret) as { id: string; email: string };
       const user = await prisma.user.findUnique({
         where: { id: decoded.id },
-        select: { id: true, email: true, role: true, plan: true, name: true },
+        select: { id: true, email: true, role: true, plan: true, name: true, active: true },
       });
       if (user) {
         req.user = user;

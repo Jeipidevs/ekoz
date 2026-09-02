@@ -4,9 +4,7 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../services/prisma.service.js';
 import { config } from '../config/index.js';
 import { sendServerError } from '../middleware/error.middleware.js';
-
-// Cargos de equipe/liderança sempre têm acesso, independente de assinatura
-const STAFF_ROLES = ['CEO', 'Mentor', 'Admin'];
+import { STAFF_ROLES } from '../utils/roles.js';
 
 export class AuthController {
   public static async login(req: Request, res: Response): Promise<void> {
@@ -26,6 +24,11 @@ export class AuthController {
       const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
       if (!isPasswordValid) {
         res.status(401).json({ error: 'Credenciais inválidas' });
+        return;
+      }
+
+      if (!user.active) {
+        res.status(403).json({ error: 'Sua conta foi desativada. Fale com a administração.' });
         return;
       }
 

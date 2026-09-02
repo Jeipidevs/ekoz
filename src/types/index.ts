@@ -2,6 +2,7 @@ export type UserRole = 'CEO' | 'Mentor' | 'Admin' | 'Member' | 'Black Member';
 
 export interface User {
   id: string;
+  email?: string;
   name: string;
   role: UserRole;
   headline: string;
@@ -14,7 +15,26 @@ export interface User {
   whatsapp?: string;
   instagram?: string;
   linkedin?: string;
-  plan: 'Membro Ekoz' | 'Ekoz Black' | 'Founding Partner';
+  plan: string;
+  active?: boolean;
+}
+
+export interface AdminMemberSubscription {
+  plan: string;
+  status: string;
+  expiresAt: string | null;
+}
+
+export interface AdminMember {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  plan: string;
+  active: boolean;
+  whatsapp: string | null;
+  createdAt: string;
+  subscriptions: AdminMemberSubscription[];
 }
 
 export interface Comment {
@@ -154,4 +174,4 @@ export interface NotificationItem {
   actionUrl?: string;
 }
 
-export type ActiveTab = 'feed' | 'academy' | 'marketplace' | 'events' | 'experiences' | 'videocall';
+export type ActiveTab = 'feed' | 'academy' | 'marketplace' | 'events' | 'experiences' | 'videocall' | 'admin';

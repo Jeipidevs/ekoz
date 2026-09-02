@@ -13,8 +13,10 @@ import {
 } from 'lucide-react';
 import { ActiveTab } from '../../types';
 
+const STAFF_ROLES = ['CEO', 'Mentor', 'Admin'];
+
 export const Sidebar: React.FC = () => {
-  const { activeTab, setActiveTab, setWhatsappPushOpen, setCheckoutOpen } = useEkoz();
+  const { user, activeTab, setActiveTab, setWhatsappPushOpen, setCheckoutOpen } = useEkoz();
   const [expanded, setExpanded] = useState(false);
 
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; badge?: string }[] = [
@@ -52,6 +54,15 @@ export const Sidebar: React.FC = () => {
       icon: <Video size={19} />,
       badge: 'Ao Vivo',
     },
+    ...(STAFF_ROLES.includes(user.role)
+      ? [
+          {
+            id: 'admin' as ActiveTab,
+            label: 'Painel Administrativo',
+            icon: <ShieldCheck size={19} />,
+          },
+        ]
+      : []),
   ];
 
   return (

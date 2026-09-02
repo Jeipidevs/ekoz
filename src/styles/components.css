@@ -3418,4 +3418,116 @@
   margin-top: 0.5rem;
 }
 
+/* Admin — Gerenciar Membros */
+.admin-view-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.admin-hero-card {
+  padding: 1.5rem;
+}
+
+.admin-view-title {
+  margin: 0.5rem 0 0.25rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+
+.admin-view-subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.admin-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  flex-wrap: wrap;
+}
+
+.admin-search-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+}
+
+.admin-search-wrapper .search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+}
+
+.admin-search-wrapper .ekoz-input {
+  padding-left: 2.2rem;
+  width: 100%;
+}
+
+.admin-role-filter {
+  width: auto;
+  min-width: 160px;
+}
+
+.admin-table-card {
+  padding: 0;
+  overflow-x: auto;
+}
+
+.admin-members-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.admin-members-table th {
+  text-align: left;
+  padding: 0.85rem 1.1rem;
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-members-table td {
+  padding: 0.75rem 1.1rem;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.admin-members-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-members-table tr.row-inactive {
+  opacity: 0.55;
+}
+
+.admin-member-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.admin-member-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.admin-member-email {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.admin-role-select {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.8rem;
+  width: auto;
+}
+
 

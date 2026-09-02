@@ -8,6 +8,7 @@ import {
   ExperienceItem,
   ChatMessage,
   NotificationItem,
+  AdminMember,
 } from '../types';
 
 const API_BASE =
@@ -218,6 +219,30 @@ class ApiClient {
     return this.request<any>('/whatsapp/send-push', {
       method: 'POST',
       body: JSON.stringify(payload),
+    });
+  }
+
+  // --- Admin: Membros ---
+  public async adminListUsers(params?: { search?: string; role?: string; active?: boolean }): Promise<AdminMember[]> {
+    const query = new URLSearchParams();
+    if (params?.search) query.append('search', params.search);
+    if (params?.role) query.append('role', params.role);
+    if (params?.active !== undefined) query.append('active', String(params.active));
+    const data = await this.request<{ users: AdminMember[] }>(`/admin/users?${query.toString()}`);
+    return data.users;
+  }
+
+  public async adminUpdateUserRole(userId: string, role: string): Promise<{ user: AdminMember }> {
+    return this.request<{ user: AdminMember }>(`/admin/users/${userId}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
+    });
+  }
+
+  public async adminUpdateUserActive(userId: string, active: boolean): Promise<{ user: AdminMember }> {
+    return this.request<{ user: AdminMember }>(`/admin/users/${userId}/active`, {
+      method: 'PATCH',
+      body: JSON.stringify({ active }),
     });
   }
 }

@@ -10,6 +10,7 @@ import chatRoutes from './chat.routes.js';
 import notificationsRoutes from './notifications.routes.js';
 import caktoRoutes from './cakto.routes.js';
 import whatsappRoutes from './whatsapp.routes.js';
+import adminRoutes from './admin.routes.js';
 
 const apiRouter = Router();
 
@@ -24,6 +25,7 @@ apiRouter.use('/chat', chatRoutes);
 apiRouter.use('/notifications', notificationsRoutes);
 apiRouter.use('/cakto', caktoRoutes);
 apiRouter.use('/whatsapp', whatsappRoutes);
+apiRouter.use('/admin', adminRoutes);
 
 apiRouter.get('/health', (_req, res) => {
   res.json({
