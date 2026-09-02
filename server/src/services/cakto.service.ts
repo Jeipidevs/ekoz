@@ -136,13 +136,14 @@ export class CaktoService {
     }
 
     if (config.adminWhatsappNumber) {
+      // Nunca inclua a senha do cliente aqui — é uma credencial de terceiro,
+      // não algo pra circular por outro canal/destinatário. O admin contata
+      // o comprador e, se necessário, gera uma nova senha manualmente.
       await WhatsAppService.sendNotification({
         toPhone: config.adminWhatsappNumber,
         type: 'alert',
         title: 'Nova compra sem telefone no payload',
-        body: `Comprador: ${user.name} (${email})\nOferta: ${planName}\nO webhook da Cakto não trouxe telefone — contate manualmente para repassar o acesso.${
-          temporaryPassword ? `\nSenha gerada: ${temporaryPassword}` : ''
-        }`,
+        body: `Comprador: ${user.name} (${email})\nOferta: ${planName}\nO webhook da Cakto não trouxe telefone — contate manualmente para repassar o acesso.`,
       });
     }
   }
