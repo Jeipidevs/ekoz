@@ -27,8 +27,14 @@ export const config = {
   jwtSecret: requireInProduction(process.env.JWT_SECRET, 'JWT_SECRET', 'ekoz_jwt_secret_high_performance_executive_key_2026'),
   jwtRefreshSecret: requireInProduction(process.env.JWT_REFRESH_SECRET, 'JWT_REFRESH_SECRET', 'ekoz_refresh_secret_exclusive_black_mastermind_2026'),
   corsOrigins: (process.env.CORS_ORIGIN || 'http://localhost:5173,https://ekoz.jpstudio.tech,http://localhost:3000').split(','),
-  caktoSecretKey: process.env.CAKTO_SECRET_KEY || 'cakto_sec_sample_key',
   caktoWebhookSecret: requireInProduction(process.env.CAKTO_WEBHOOK_SECRET, 'CAKTO_WEBHOOK_SECRET', 'cakto_wh_sample_secret'),
-  whatsappApiUrl: process.env.WHATSAPP_API_URL || 'https://api.z-api.io/instances/sample/token/sample',
-  whatsappApiToken: process.env.WHATSAPP_API_TOKEN || 'sample_token',
+  caktoClientId: process.env.CAKTO_CLIENT_ID || '',
+  caktoClientSecret: process.env.CAKTO_CLIENT_SECRET || '',
+  // Evolution API (WhatsApp) — instância "Ekoz" dedicada, mesma infra usada
+  // por outros projetos (crm-vip-os, life-endo-os) no EasyPanel
+  evolutionApiUrl: process.env.EVOLUTION_API_URL || '',
+  evolutionInstanceName: process.env.EVOLUTION_INSTANCE_NAME || '',
+  evolutionApiKey: process.env.EVOLUTION_API_KEY || '',
+  // Número que recebe alertas administrativos (ex: compra sem telefone no webhook)
+  adminWhatsappNumber: process.env.ADMIN_WHATSAPP_NUMBER || '',
 };

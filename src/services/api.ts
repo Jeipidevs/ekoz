@@ -87,6 +87,13 @@ class ApiClient {
     return this.request<{ user: User }>('/auth/me');
   }
 
+  public logout(): void {
+    this.setToken(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('ekoz_user');
+    }
+  }
+
   public async updateProfile(profile: Partial<User>): Promise<{ user: User }> {
     return this.request<{ user: User }>('/auth/profile', {
       method: 'PUT',
@@ -203,14 +210,6 @@ class ApiClient {
   public async markAllNotificationsRead(): Promise<{ success: boolean }> {
     return this.request<{ success: boolean }>('/notifications/read-all', {
       method: 'PATCH',
-    });
-  }
-
-  // --- Cakto Checkout ---
-  public async createCaktoOrder(payload: { plan: string; paymentMethod: string; installments?: number }): Promise<any> {
-    return this.request<any>('/cakto/create-order', {
-      method: 'POST',
-      body: JSON.stringify(payload),
     });
   }
 

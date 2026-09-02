@@ -1,149 +1,202 @@
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 import { prisma } from './prisma.service.js';
 import { WhatsAppService } from './whatsapp.service.js';
+import { config } from '../config/index.js';
 
-export interface CaktoOrderRequest {
-  userId: string;
-  plan: 'Membro Ekoz' | 'Ekoz Black';
-  paymentMethod: 'pix' | 'credit_card';
-  installments?: number;
-}
-
+// Formato real dos eventos/payload da Cakto — ver https://docs.cakto.com.br/conceitos/webhooks
 export interface CaktoWebhookPayload {
   secret?: string;
-  event: 'order.paid' | 'order.approved' | 'order.refunded' | 'subscription.canceled';
+  event:
+    | 'purchase_approved'
+    | 'subscription_renewed'
+    | 'subscription_canceled'
+    | 'refund'
+    | 'chargeback'
+    | string;
   data: {
     id: string;
-    amount: number;
-    customer: {
-      email: string;
-      name: string;
-      phone?: string;
-    };
-    metadata?: {
-      userId?: string;
-      plan?: string;
-    };
-    payment_method: string;
-    status: string;
-    paid_at?: string;
+    refId?: string;
+    status?: string;
+    baseAmount?: number;
+    checkoutUrl?: string;
+    name?: string;
+    email?: string;
+    docNumber?: string;
+    phone?: string;
+    product?: { id?: string; name?: string };
+    offer?: { id?: string; name?: string; price?: number };
   };
 }
 
-export class CaktoService {
-  /**
-   * Create or simulate a Cakto checkout order
-   */
-  public static async createOrder(order: CaktoOrderRequest) {
-    const user = await prisma.user.findUnique({
-      where: { id: order.userId },
-    });
+// Acesso anual: renovação só ocorre na próxima compra, então damos margem de 1 ano
+// + alguns dias. Acesso mensal recorrente é mantido vivo pelo evento subscription_renewed.
+const ANNUAL_ACCESS_DAYS = 370;
+const MONTHLY_RENEWAL_GRACE_DAYS = 35;
 
-    if (!user) {
-      throw new Error('Usuário não encontrado');
+export class CaktoService {
+  public static async handleWebhook(payload: CaktoWebhookPayload) {
+    const { event, data } = payload;
+    console.log(`💳 [Cakto Webhook] ${event} — pedido ${data?.id}`);
+
+    if (!data?.email) {
+      console.warn('⚠️  Webhook Cakto sem e-mail no payload, evento ignorado.');
+      return { success: true, message: 'Sem e-mail no payload, evento ignorado' };
     }
 
-    const orderId = `cakto_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-    const amount = order.plan === 'Ekoz Black' ? 1250.0 : 297.0;
+    switch (event) {
+      case 'purchase_approved':
+        return CaktoService.grantAccess(payload);
+      case 'subscription_renewed':
+        return CaktoService.renewAccess(payload);
+      case 'subscription_canceled':
+      case 'refund':
+      case 'chargeback':
+        return CaktoService.revokeAccess(payload);
+      default:
+        return { success: true, message: `Evento ${event} não tratado` };
+    }
+  }
 
-    // Generate mock PIX copy-paste code or transaction token
-    const pixCode = `00020126580014br.gov.bcb.pix0136${orderId}520400005303986540${amount.toFixed(2)}5802BR5915EKOZ_ECOSYSTEM6009SAO_PAULO62070503***6304CA12`;
+  private static async grantAccess(payload: CaktoWebhookPayload) {
+    const { data } = payload;
+    const email = data.email!.toLowerCase();
+    const planName = data.offer?.name || data.product?.name || 'Ekoz';
 
-    // Save pending subscription
-    const subscription = await prisma.subscription.create({
+    let user = await prisma.user.findUnique({ where: { email } });
+    let temporaryPassword: string | null = null;
+
+    if (!user) {
+      temporaryPassword = crypto.randomBytes(6).toString('hex');
+      const passwordHash = await bcrypt.hash(temporaryPassword, 10);
+      user = await prisma.user.create({
+        data: {
+          email,
+          passwordHash,
+          name: data.name || email.split('@')[0],
+          role: 'Member',
+          plan: planName,
+          whatsapp: data.phone || null,
+          verified: true,
+          skills: JSON.stringify([]),
+        },
+      });
+    } else if (user.plan !== planName) {
+      user = await prisma.user.update({ where: { id: user.id }, data: { plan: planName } });
+    }
+
+    await prisma.subscription.create({
       data: {
         userId: user.id,
-        plan: order.plan,
-        status: 'PENDING',
-        caktoOrderId: orderId,
-        amount: amount,
-        paymentMethod: order.paymentMethod,
+        plan: planName,
+        status: 'ACTIVE',
+        caktoOrderId: data.id,
+        amount: data.baseAmount || 0,
+        paymentMethod: 'cakto',
+        expiresAt: new Date(Date.now() + ANNUAL_ACCESS_DAYS * 24 * 60 * 60 * 1000),
       },
     });
 
-    return {
-      orderId,
-      subscriptionId: subscription.id,
-      amount,
-      plan: order.plan,
-      pixCode: order.paymentMethod === 'pix' ? pixCode : undefined,
-      qrCodeUrl: order.paymentMethod === 'pix' ? `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pixCode)}` : undefined,
-      checkoutUrl: `https://checkout.cakto.com.br/pay/${orderId}`,
-    };
+    await prisma.notification.create({
+      data: {
+        userId: user.id,
+        type: 'announcement',
+        title: 'Acesso Ekoz liberado!',
+        description: 'Seu pagamento foi confirmado e seu acesso ao ecossistema Ekoz já está ativo.',
+      },
+    });
+
+    await CaktoService.notifyAccessGranted({ user, email, planName, phone: data.phone, temporaryPassword });
+
+    console.log(`✨ Acesso concedido para ${email} (${planName})`);
+    return { success: true, userId: user.id, plan: planName, accountCreated: !!temporaryPassword };
   }
 
-  /**
-   * Process Cakto Webhook and automatically upgrade user
-   */
-  public static async handleWebhook(payload: CaktoWebhookPayload) {
-    console.log('💳 [Cakto Webhook] Received event:', payload.event, payload.data.id);
+  private static async notifyAccessGranted(params: {
+    user: { id: string; name: string };
+    email: string;
+    planName: string;
+    phone?: string;
+    temporaryPassword: string | null;
+  }) {
+    const { user, email, planName, phone, temporaryPassword } = params;
 
-    const { event, data } = payload;
-    const email = data.customer?.email;
-    const planName = data.metadata?.plan || (data.amount >= 1000 ? 'Ekoz Black' : 'Membro Ekoz');
-
-    if (event === 'order.paid' || event === 'order.approved') {
-      const user = await prisma.user.findFirst({
-        where: {
-          OR: [
-            { email: email },
-            { id: data.metadata?.userId || '' },
-          ],
-        },
+    if (phone) {
+      const passwordLine = temporaryPassword
+        ? `\nSua senha temporária: *${temporaryPassword}*\n(recomendamos trocar assim que entrar)`
+        : '';
+      await WhatsAppService.sendNotification({
+        toPhone: phone,
+        type: 'payment',
+        title: `Bem-vindo(a) à Ekoz, ${user.name}!`,
+        body: `Seu pagamento (${planName}) foi confirmado.\n\nAcesse com o e-mail *${email}*${passwordLine}`,
+        actionUrl: 'https://ekoz.jpstudio.tech',
       });
-
-      if (user) {
-        // Upgrade user plan and role if applicable
-        const updatedRole = planName === 'Ekoz Black' && user.role !== 'CEO' && user.role !== 'Mentor' && user.role !== 'Admin' 
-          ? 'Black Member' 
-          : user.role;
-
-        await prisma.user.update({
-          where: { id: user.id },
-          data: {
-            plan: planName,
-            role: updatedRole,
-          },
-        });
-
-        // Update or create subscription
-        await prisma.subscription.create({
-          data: {
-            userId: user.id,
-            plan: planName,
-            status: 'ACTIVE',
-            caktoOrderId: data.id,
-            amount: data.amount / 100 || data.amount,
-            paymentMethod: data.payment_method,
-            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-          },
-        });
-
-        // Create in-app notification
-        await prisma.notification.create({
-          data: {
-            userId: user.id,
-            type: 'announcement',
-            title: `Assinatura ${planName} Ativada!`,
-            description: `Seu pagamento via Cakto foi confirmado com sucesso. Todos os benefícios exclusivos do plano ${planName} já estão disponíveis.`,
-          },
-        });
-
-        // Send WhatsApp Push Celebration
-        if (user.whatsapp) {
-          await WhatsAppService.sendNotification({
-            toPhone: user.whatsapp,
-            type: 'payment',
-            title: `Assinatura ${planName} Confirmada com Sucesso!`,
-            body: `Parabéns, ${user.name}! Seu acesso exclusivo ao plano *${planName}* foi liberado. Prepare-se para vivenciar o mais alto nível de conexões executivas.`,
-            actionUrl: 'https://ekoz.jpstudio.tech',
-          });
-        }
-
-        console.log(`✨ User ${user.email} successfully upgraded to ${planName}!`);
-        return { success: true, userId: user.id, plan: planName };
-      }
+      return;
     }
 
-    return { success: true, message: 'Event ignored or user not found' };
+    if (config.adminWhatsappNumber) {
+      await WhatsAppService.sendNotification({
+        toPhone: config.adminWhatsappNumber,
+        type: 'alert',
+        title: 'Nova compra sem telefone no payload',
+        body: `Comprador: ${user.name} (${email})\nOferta: ${planName}\nO webhook da Cakto não trouxe telefone — contate manualmente para repassar o acesso.${
+          temporaryPassword ? `\nSenha gerada: ${temporaryPassword}` : ''
+        }`,
+      });
+    }
+  }
+
+  private static async renewAccess(payload: CaktoWebhookPayload) {
+    const { data } = payload;
+    const email = data.email!.toLowerCase();
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      console.warn(`⚠️  subscription_renewed para e-mail sem conta: ${email}`);
+      return { success: true, message: 'Usuário não encontrado' };
+    }
+
+    await prisma.subscription.create({
+      data: {
+        userId: user.id,
+        plan: data.offer?.name || user.plan,
+        status: 'ACTIVE',
+        caktoOrderId: data.id,
+        amount: data.baseAmount || 0,
+        paymentMethod: 'cakto',
+        expiresAt: new Date(Date.now() + MONTHLY_RENEWAL_GRACE_DAYS * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    console.log(`🔄 Assinatura renovada para ${email}`);
+    return { success: true, userId: user.id };
+  }
+
+  private static async revokeAccess(payload: CaktoWebhookPayload) {
+    const { data, event } = payload;
+    const email = data.email!.toLowerCase();
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      return { success: true, message: 'Usuário não encontrado' };
+    }
+
+    await prisma.subscription.updateMany({
+      where: { userId: user.id, status: 'ACTIVE' },
+      data: { status: 'CANCELLED' },
+    });
+
+    await prisma.notification.create({
+      data: {
+        userId: user.id,
+        type: 'announcement',
+        title: 'Acesso Ekoz encerrado',
+        description: `Seu acesso foi encerrado (${event}). Entre em contato caso isso seja um engano.`,
+      },
+    });
+
+    console.log(`🚫 Acesso revogado para ${email} (${event})`);
+    return { success: true, userId: user.id };
   }
 }

@@ -2,7 +2,7 @@ import { config } from '../config/index.js';
 
 export interface WhatsAppNotificationPayload {
   toPhone: string;
-  type: 'announcement' | 'lesson' | 'message' | 'event' | 'payment';
+  type: 'announcement' | 'lesson' | 'message' | 'event' | 'payment' | 'alert';
   title: string;
   body: string;
   actionUrl?: string;
@@ -43,7 +43,10 @@ export class WhatsAppService {
         header = '📅 *EKOZ SUMMITS & EXPEDIÇÕES — CONFIRMAÇÃO*';
         break;
       case 'payment':
-        header = '👑 *EKOZ BLACK — ASSINATURA CONFIRMADA*';
+        header = '👑 *EKOZ — ACESSO CONFIRMADO*';
+        break;
+      case 'alert':
+        header = '⚠️ *EKOZ — ALERTA ADMINISTRATIVO*';
         break;
     }
 
@@ -55,7 +58,7 @@ export class WhatsAppService {
   }
 
   /**
-   * Send WhatsApp message via configured gateway (Z-API / Evolution / Mock)
+   * Send WhatsApp message via Evolution API (instância dedicada "Ekoz")
    */
   public static async sendNotification(payload: WhatsAppNotificationPayload): Promise<{ success: boolean; messageId?: string; error?: string }> {
     const cleanPhone = this.cleanPhone(payload.toPhone);
@@ -64,33 +67,37 @@ export class WhatsAppService {
     console.log(`📲 [WhatsApp Push] Dispatching to ${cleanPhone}:`);
     console.log(message);
 
-    // If using real API gateway:
-    if (config.whatsappApiUrl && !config.whatsappApiUrl.includes('sample')) {
-      try {
-        const response = await fetch(config.whatsappApiUrl, {
+    if (!config.evolutionApiUrl || !config.evolutionInstanceName || !config.evolutionApiKey) {
+      console.warn('⚠️  Evolution API não configurada (EVOLUTION_API_URL/INSTANCE_NAME/API_KEY) — envio simulado.');
+      return { success: true, messageId: `mock-msg-${Date.now()}` };
+    }
+
+    try {
+      const response = await fetch(
+        `${config.evolutionApiUrl}/message/sendText/${config.evolutionInstanceName}`,
+        {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Client-Token': config.whatsappApiToken,
+            apikey: config.evolutionApiKey,
           },
           body: JSON.stringify({
-            phone: cleanPhone,
-            message: message,
+            number: cleanPhone,
+            text: message,
           }),
-        });
+        }
+      );
 
-        const data: any = await response.json();
-        return { success: response.ok, messageId: data.messageId || data.id };
-      } catch (err: any) {
-        console.error('❌ Error sending WhatsApp notification:', err.message);
-        return { success: false, error: err.message };
+      const data: any = await response.json();
+      if (!response.ok) {
+        console.error('❌ Evolution API respondeu com erro:', response.status, data);
+        return { success: false, error: data?.message || `HTTP ${response.status}` };
       }
-    }
 
-    // In development or demo mode, simulate successful dispatch
-    return {
-      success: true,
-      messageId: `mock-msg-${Date.now()}`,
-    };
+      return { success: true, messageId: data?.key?.id || data?.messageId };
+    } catch (err: any) {
+      console.error('❌ Error sending WhatsApp notification:', err.message);
+      return { success: false, error: err.message };
+    }
   }
 }

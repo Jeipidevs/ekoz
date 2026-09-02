@@ -5,91 +5,17 @@ import { prisma } from '../services/prisma.service.js';
 import { config } from '../config/index.js';
 import { sendServerError } from '../middleware/error.middleware.js';
 
+// Cargos de equipe/liderança sempre têm acesso, independente de assinatura
+const STAFF_ROLES = ['CEO', 'Mentor', 'Admin'];
+
 export class AuthController {
-  public static async register(req: Request, res: Response): Promise<void> {
-    try {
-      const { email, password, name, company, headline, role, plan, whatsapp, instagram, linkedin } = req.body;
-
-      const existingUser = await prisma.user.findUnique({
-        where: { email: email.toLowerCase() },
-      });
-
-      if (existingUser) {
-        res.status(400).json({ error: 'E-mail já cadastrado no ecossistema Ekoz' });
-        return;
-      }
-
-      const passwordHash = await bcrypt.hash(password, 10);
-
-      const user = await prisma.user.create({
-        data: {
-          email: email.toLowerCase(),
-          passwordHash,
-          name,
-          company: company || '',
-          headline: headline || `${role || 'Membro'} na ${company || 'Ekoz'}`,
-          role: role || 'Member',
-          plan: plan || 'Membro Ekoz',
-          whatsapp,
-          instagram,
-          linkedin,
-          verified: true,
-          skills: JSON.stringify(['Liderança', 'Gestão', 'Estratégia']),
-        },
-      });
-
-      const token = jwt.sign(
-        { id: user.id, email: user.email, role: user.role },
-        config.jwtSecret,
-        { expiresIn: '7d' }
-      );
-
-      const refreshToken = jwt.sign(
-        { id: user.id },
-        config.jwtRefreshSecret,
-        { expiresIn: '30d' }
-      );
-
-      await prisma.refreshToken.create({
-        data: {
-          token: refreshToken,
-          userId: user.id,
-          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        },
-      });
-
-      res.status(201).json({
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          headline: user.headline,
-          company: user.company,
-          avatar: user.avatar,
-          bio: user.bio,
-          verified: user.verified,
-          skills: JSON.parse(user.skills || '[]'),
-          location: user.location,
-          whatsapp: user.whatsapp,
-          instagram: user.instagram,
-          linkedin: user.linkedin,
-          plan: user.plan,
-        },
-        token,
-        refreshToken,
-      });
-    } catch (error: any) {
-      sendServerError(res, error, 'Erro ao registrar membro');
-    }
-  }
-
   public static async login(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
 
       const user = await prisma.user.findUnique({
         where: { email: email.toLowerCase() },
+        include: { subscriptions: { where: { status: 'ACTIVE' }, take: 1 } },
       });
 
       if (!user) {
@@ -100,6 +26,16 @@ export class AuthController {
       const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
       if (!isPasswordValid) {
         res.status(401).json({ error: 'Credenciais inválidas' });
+        return;
+      }
+
+      const hasActiveSubscription = user.subscriptions.some(
+        (s) => !s.expiresAt || s.expiresAt > new Date()
+      );
+      if (!STAFF_ROLES.includes(user.role) && !hasActiveSubscription) {
+        res.status(403).json({
+          error: 'Sua assinatura não está ativa. Complete a compra para acessar a plataforma.',
+        });
         return;
       }
 

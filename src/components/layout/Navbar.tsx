@@ -18,17 +18,13 @@ export const Navbar: React.FC = () => {
     notifications,
     setWhatsappPushOpen,
     setCheckoutOpen,
-    setSelectedPlanForCheckout,
-    setAuthModalOpen,
+    logout,
   } = useEkoz();
 
   const [showNotifications, setShowNotifications] = useState(false);
   const unreadNotifications = notifications.filter((n) => !n.read).length;
 
-  const handleOpenUpgrade = () => {
-    setSelectedPlanForCheckout('Ekoz Black Membership');
-    setCheckoutOpen(true);
-  };
+  const handleOpenUpgrade = () => setCheckoutOpen(true);
 
   return (
     <header className="navbar-container">
@@ -137,9 +133,11 @@ export const Navbar: React.FC = () => {
         {/* User Pill */}
         <div
           className="navbar-user-pill"
-          onClick={() => setAuthModalOpen(true)}
+          onClick={() => {
+            if (window.confirm('Sair da sua conta Ekoz?')) logout();
+          }}
           style={{ cursor: 'pointer' }}
-          title="Clique para alternar perfil ou autenticar"
+          title="Clique para sair da conta"
         >
           <div className="user-avatar-wrap">
             <img src={user.avatar} alt={user.name} className="user-avatar-img" />

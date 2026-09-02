@@ -4,7 +4,8 @@ import { authenticate } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
-router.post('/register', AuthController.register);
+// Cadastro público fechado: contas só são criadas pelo webhook da Cakto
+// (compra aprovada) — ver server/src/services/cakto.service.ts
 router.post('/login', AuthController.login);
 router.get('/me', authenticate, AuthController.me);
 router.put('/profile', authenticate, AuthController.updateProfile);

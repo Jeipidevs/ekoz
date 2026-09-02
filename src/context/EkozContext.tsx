@@ -13,7 +13,6 @@ import {
   ActiveTab,
 } from '../types';
 import {
-  currentUser as initialCurrentUser,
   initialPosts,
   thematicCores as initialThematicCores,
   marketplaceBusinesses as initialBusinesses,
@@ -66,13 +65,7 @@ interface EkozContextType {
   setWhatsappPushOpen: (open: boolean) => void;
   checkoutOpen: boolean;
   setCheckoutOpen: (open: boolean) => void;
-  selectedPlanForCheckout: string;
-  setSelectedPlanForCheckout: (plan: string) => void;
-  authModalOpen: boolean;
-  setAuthModalOpen: (open: boolean) => void;
-  loginWithCredentials: (email: string, password: string) => Promise<void>;
-  registerUser: (payload: any) => Promise<void>;
-  switchUser: (targetUser: User) => void;
+  logout: () => void;
   notifications: NotificationItem[];
   markNotificationRead: (id: string) => Promise<void>;
   triggerToast: (toast: ToastData) => void;
@@ -82,14 +75,10 @@ interface EkozContextType {
 
 const EkozContext = createContext<EkozContextType | undefined>(undefined);
 
-export const EkozProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User>(() => {
-    const saved = localStorage.getItem('ekoz_user');
-    return saved ? JSON.parse(saved) : initialCurrentUser;
-  });
+export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> = ({ children, initialUser }) => {
+  const [user, setUser] = useState<User>(initialUser);
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('feed');
-  const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
 
   // Posts State
   const [posts, setPosts] = useState<Post[]>(() => {
@@ -148,7 +137,6 @@ export const EkozProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications);
   const [whatsappPushOpen, setWhatsappPushOpen] = useState<boolean>(false);
   const [checkoutOpen, setCheckoutOpen] = useState<boolean>(false);
-  const [selectedPlanForCheckout, setSelectedPlanForCheckout] = useState<string>('Ekoz Black Membership');
   const [activeToast, setActiveToast] = useState<ToastData | null>(null);
 
   const triggerToast = (toast: ToastData) => {
@@ -162,22 +150,11 @@ export const EkozProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Sync state with backend API on mount
   useEffect(() => {
+    // Autenticação já foi validada pelo gate em App.tsx antes deste provider
+    // montar — aqui só carregamos os dados do restante do app.
+    const token = api.getToken();
     const loadBackendData = async () => {
       try {
-        // Check current auth
-        const token = api.getToken();
-        if (token) {
-          try {
-            const meRes = await api.getMe();
-            if (meRes.user) {
-              setUser(meRes.user);
-              localStorage.setItem('ekoz_user', JSON.stringify(meRes.user));
-            }
-          } catch {
-            // token expired
-          }
-        }
-
         // Fetch Posts
         const remotePosts = await api.listPosts();
         if (remotePosts && remotePosts.length > 0) {
@@ -539,55 +516,10 @@ export const EkozProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  // Action: Auth Login
-  const loginWithCredentials = async (email: string, pass: string) => {
-    try {
-      const res = await api.login(email, pass);
-      setUser(res.user);
-      localStorage.setItem('ekoz_user', JSON.stringify(res.user));
-      socketClient.connect(res.token);
-
-      triggerToast({
-        title: `Bem-vindo, ${res.user.name}!`,
-        message: `Sessão executiva iniciada como ${res.user.role} (${res.user.plan}).`,
-        type: 'success',
-      });
-    } catch (err: any) {
-      // Fallback for offline demo
-      const matched = membersList.find((m) => m.name.toLowerCase().includes(email.split('@')[0].toLowerCase())) || initialCurrentUser;
-      setUser(matched);
-      localStorage.setItem('ekoz_user', JSON.stringify(matched));
-      triggerToast({
-        title: `Sessão Alternada: ${matched.name}`,
-        message: `Conectado como ${matched.role}.`,
-        type: 'info',
-      });
-    }
-  };
-
-  // Action: Register User
-  const registerUser = async (payload: any) => {
-    const res = await api.register(payload);
-    setUser(res.user);
-    localStorage.setItem('ekoz_user', JSON.stringify(res.user));
-    socketClient.connect(res.token);
-
-    triggerToast({
-      title: 'Credenciamento Concluído!',
-      message: `Bem-vindo ao ecossistema Ekoz, ${res.user.name}.`,
-      type: 'success',
-    });
-  };
-
-  // Action: Switch User
-  const switchUser = (targetUser: User) => {
-    setUser(targetUser);
-    localStorage.setItem('ekoz_user', JSON.stringify(targetUser));
-    triggerToast({
-      title: `Perfil Ativo: ${targetUser.name}`,
-      message: `Navegando no ecossistema como ${targetUser.role}.`,
-      type: 'info',
-    });
+  // Action: Logout — limpa sessão e recarrega pra voltar ao gate de login em App.tsx
+  const logout = () => {
+    api.logout();
+    window.location.reload();
   };
 
   // Action: Mark notification read
@@ -636,13 +568,7 @@ export const EkozProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setWhatsappPushOpen,
         checkoutOpen,
         setCheckoutOpen,
-        selectedPlanForCheckout,
-        setSelectedPlanForCheckout,
-        authModalOpen,
-        setAuthModalOpen,
-        loginWithCredentials,
-        registerUser,
-        switchUser,
+        logout,
         notifications,
         markNotificationRead,
         triggerToast,
