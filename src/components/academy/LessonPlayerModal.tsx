@@ -18,11 +18,17 @@ interface LessonPlayerModalProps {
   onClose: () => void;
 }
 
+const findFirstIncompleteLesson = (course: Course): Lesson => {
+  for (const mod of course.modules) {
+    const incomplete = mod.lessons.find((lesson) => !lesson.completed);
+    if (incomplete) return incomplete;
+  }
+  return course.modules[0]?.lessons[0] || ({} as Lesson);
+};
+
 export const LessonPlayerModal: React.FC<LessonPlayerModalProps> = ({ course, onClose }) => {
   const { toggleLessonComplete } = useEkoz();
-  const [selectedLesson, setSelectedLesson] = useState<Lesson>(
-    course.modules[0]?.lessons[0] || ({} as Lesson)
-  );
+  const [selectedLesson, setSelectedLesson] = useState<Lesson>(() => findFirstIncompleteLesson(course));
   const [activeSubTab, setActiveSubTab] = useState<'resumo' | 'materiais' | 'duvidas'>('resumo');
   const [doubtText, setDoubtText] = useState('');
   const [doubtsList, setDoubtsList] = useState<{ id: string; user: string; text: string; time: string }[]>([
