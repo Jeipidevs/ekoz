@@ -126,9 +126,12 @@ model Course {
   instructorRole   String
   instructorAvatar String
   coverImage       String
+  backdropImage    String?
   category         String // Alta Performance, Gestão & Escala, Liderança & Inteligência, Lifestyle & Network
   duration         String
   description      String
+  isFeatured       Boolean        @default(false)
+  tags             String         @default("[]") // JSON array of string
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   modules          CourseModule[]
