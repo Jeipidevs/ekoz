@@ -24,6 +24,29 @@ export class AcademyController {
         },
       });
 
+      // Mapa aula -> curso, usado para calcular popularidade real (learnersCount)
+      // sem precisar de agregação SQL crua.
+      const lessonToCourseId = new Map<string, string>();
+      courses.forEach((course) => {
+        course.modules.forEach((mod) => {
+          mod.lessons.forEach((les) => {
+            lessonToCourseId.set(les.id, course.id);
+          });
+        });
+      });
+
+      const allProgress = await prisma.userLessonProgress.findMany({
+        select: { userId: true, lessonId: true },
+      });
+
+      const learnersByCourse = new Map<string, Set<string>>();
+      allProgress.forEach((p) => {
+        const courseId = lessonToCourseId.get(p.lessonId);
+        if (!courseId) return;
+        if (!learnersByCourse.has(courseId)) learnersByCourse.set(courseId, new Set());
+        learnersByCourse.get(courseId)!.add(p.userId);
+      });
+
       const formatted = courses.map((course) => {
         let totalLessons = 0;
         let completedLessons = 0;
@@ -57,12 +80,16 @@ export class AcademyController {
           instructorRole: course.instructorRole,
           instructorAvatar: course.instructorAvatar,
           coverImage: course.coverImage,
+          backdropImage: course.backdropImage || course.coverImage,
           category: course.category as any,
           duration: course.duration,
           lessonsCount: totalLessons,
           description: course.description,
           modules,
           progress,
+          isFeatured: course.isFeatured,
+          tags: JSON.parse(course.tags || '[]'),
+          learnersCount: learnersByCourse.get(course.id)?.size || 0,
         };
       });
 
