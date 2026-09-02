@@ -12,10 +12,12 @@ const ROTATE_INTERVAL_MS = 6000;
 export const AcademyHero: React.FC<AcademyHeroProps> = ({ courses, onSelect }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [trackedCoursesLength, setTrackedCoursesLength] = useState(courses.length);
 
-  useEffect(() => {
+  if (courses.length !== trackedCoursesLength) {
+    setTrackedCoursesLength(courses.length);
     setActiveIndex(0);
-  }, [courses.length]);
+  }
 
   useEffect(() => {
     if (paused || courses.length <= 1) return;
