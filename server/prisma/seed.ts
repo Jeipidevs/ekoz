@@ -338,9 +338,12 @@ async function main() {
       instructorRole: 'CEO Ekoz & Especialista em Gestão',
       instructorAvatar: '/ezekiel.jpg',
       coverImage: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop&q=80',
+      backdropImage: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1600&auto=format&fit=crop&q=80',
       category: 'Gestão & Escala',
       duration: '4h 30min',
       description: 'O método comprovado que utilizei para estruturar empresas escaláveis, criar marcas com autoridade inabalável e liderar equipes de alta performance sem depender da minha presença operacional diária.',
+      isFeatured: true,
+      tags: JSON.stringify(['Gestão de Pessoas', 'Escala de Negócios']),
     },
   });
 
@@ -402,9 +405,12 @@ async function main() {
       instructorRole: 'Sócia Vasconcellos Capital & M&A',
       instructorAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80',
       coverImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop&q=80',
+      backdropImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&auto=format&fit=crop&q=80',
       category: 'Liderança & Inteligência',
       duration: '3h 15min',
       description: 'Como blindar o patrimônio construído pela sua empresa de passivos fiscais e trabalhistas, reduzindo em até 70% o ITCMD na sucessão familiar.',
+      isFeatured: true,
+      tags: JSON.stringify(['Sucessão Patrimonial', 'Tributário']),
     },
   });
 
@@ -429,6 +435,405 @@ async function main() {
       resources: JSON.stringify([
         { name: 'Checklist_Holdings_2026.pdf', type: 'PDF', url: '#' },
       ]),
+    },
+  });
+
+  // --- Curso 3: Alta Performance (destaque) ---
+  const course3 = await prisma.course.create({
+    data: {
+      id: 'course-3',
+      title: 'Biohacking Executivo: Energia e Foco Sem Limites',
+      instructorName: 'Dr. Rafael Tanaka',
+      instructorRole: 'Médico de Performance Humana & Longevidade',
+      instructorAvatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&auto=format&fit=crop&q=80',
+      coverImage: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&auto=format&fit=crop&q=80',
+      backdropImage: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1600&auto=format&fit=crop&q=80',
+      category: 'Alta Performance',
+      duration: '2h 50min',
+      description: 'Protocolos de sono, nutrição estratégica e suplementação baseada em evidências para sustentar decisões de alto risco sem esgotar o corpo.',
+      isFeatured: true,
+      tags: JSON.stringify(['Biohacking', 'Saúde Executiva']),
+    },
+  });
+
+  const module3_1 = await prisma.courseModule.create({
+    data: { id: 'mod-3-1', courseId: course3.id, title: 'Módulo 1: Fundamentos do Biohacking Executivo', order: 1 },
+  });
+
+  const lesson3_1_1 = await prisma.lesson.create({
+    data: {
+      id: 'les-3-1-1',
+      moduleId: module3_1.id,
+      title: 'Aula 1: Protocolos de Sono para Alta Performance',
+      duration: '18:30',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+      summary: 'Como estruturar ciclos de sono compatíveis com viagens e fusos múltiplos sem perder capacidade cognitiva.',
+      order: 1,
+      resources: JSON.stringify([{ name: 'Protocolo_Sono_Ekoz.pdf', type: 'PDF', url: '#' }]),
+    },
+  });
+
+  await prisma.lesson.create({
+    data: {
+      id: 'les-3-1-2',
+      moduleId: module3_1.id,
+      title: 'Aula 2: Nutrição Estratégica para Decisões de Alto Risco',
+      duration: '21:05',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+      summary: 'Janelas alimentares e suplementação com evidência real para sustentar foco em negociações longas.',
+      order: 2,
+      resources: JSON.stringify([{ name: 'Guia_Nutricao_Executiva.pdf', type: 'PDF', url: '#' }]),
+    },
+  });
+
+  await prisma.userLessonProgress.create({
+    data: { userId: ezekiel.id, lessonId: lesson3_1_1.id, completed: true, completedAt: new Date() },
+  });
+
+  // --- Curso 4: Alta Performance ---
+  const course4 = await prisma.course.create({
+    data: {
+      id: 'course-4',
+      title: 'Blindagem Emocional: Liderando Sob Pressão',
+      instructorName: 'Bianca Ferraz',
+      instructorRole: 'Psicóloga Executiva & Coach de Alta Performance',
+      instructorAvatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&auto=format&fit=crop&q=80',
+      coverImage: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop&q=80',
+      backdropImage: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1600&auto=format&fit=crop&q=80',
+      category: 'Alta Performance',
+      duration: '3h 10min',
+      description: 'Técnicas de regulação emocional e tomada de decisão sob pressão para líderes que não podem se dar ao luxo de reagir por impulso.',
+      isFeatured: false,
+      tags: JSON.stringify(['Inteligência Emocional', 'Liderança']),
+    },
+  });
+
+  const module4_1 = await prisma.courseModule.create({
+    data: { id: 'mod-4-1', courseId: course4.id, title: 'Módulo 1: Regulação Emocional Executiva', order: 1 },
+  });
+
+  await prisma.lesson.create({
+    data: {
+      id: 'les-4-1-1',
+      moduleId: module4_1.id,
+      title: 'Aula 1: O Ciclo da Reação Impulsiva',
+      duration: '19:40',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+      summary: 'Como identificar o gatilho fisiológico antes de reagir mal em uma reunião de alto risco.',
+      order: 1,
+      resources: JSON.stringify([{ name: 'Mapa_Gatilhos_Executivos.pdf', type: 'PDF', url: '#' }]),
+    },
+  });
+
+  await prisma.lesson.create({
+    data: {
+      id: 'les-4-1-2',
+      moduleId: module4_1.id,
+      title: 'Aula 2: Negociando Sob Pressão sem Perder a Régua',
+      duration: '23:15',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+      summary: 'Protocolo de 3 passos para manter clareza de decisão em negociações tensas.',
+      order: 2,
+      resources: JSON.stringify([{ name: 'Checklist_Negociacao_Tensa.pdf', type: 'PDF', url: '#' }]),
+    },
+  });
+
+  // --- Curso 5: Gestão & Escala (destaque, 100% concluído) ---
+  const course5 = await prisma.course.create({
+    data: {
+      id: 'course-5',
+      title: 'Gestão de Equipes Autônomas: Escale Sem Estar Presente',
+      instructorName: "Ezekiel Dall'Bello",
+      instructorRole: 'CEO Ekoz & Especialista em Gestão',
+      instructorAvatar: '/ezekiel.jpg',
+      coverImage: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&auto=format&fit=crop&q=80',
+      backdropImage: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1600&auto=format&fit=crop&q=80',
+      category: 'Gestão & Escala',
+      duration: '5h 05min',
+      description: 'O sistema operacional de gestão que uso para liderar múltiplas operações simultâneas sem depender da minha presença diária.',
+      isFeatured: false,
+      tags: JSON.stringify(['Gestão de Pessoas', 'Escala']),
+    },
+  });
+
+  const module5_1 = await prisma.courseModule.create({
+    data: { id: 'mod-5-1', courseId: course5.id, title: 'Módulo 1: O Sistema Operacional de Gestão Ekoz', order: 1 },
+  });
+
+  const lesson5_1_1 = await prisma.lesson.create({
+    data: {
+      id: 'les-5-1-1',
+      moduleId: module5_1.id,
+      title: 'Aula 1: Desenhando Autonomia com Accountability',
+      duration: '24:00',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+      summary: 'Como dar autonomia real sem perder controle sobre resultado.',
+      order: 1,
+      resources: JSON.stringify([{ name: 'Matriz_Autonomia_Accountability.pdf', type: 'PDF', url: '#' }]),
+    },
+  });
+
+  const lesson5_1_2 = await prisma.lesson.create({
+    data: {
+      id: 'les-5-1-2',
+      moduleId: module5_1.id,
+      title: 'Aula 2: Rituais de Gestão à Distância',
+      duration: '20:50',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+      summary: 'A cadência de reuniões e reports que sustenta múltiplas operações sem microgerenciamento.',
+      order: 2,
+      resources: JSON.stringify([{ name: 'Calendario_Ritos_Gestao.pdf', type: 'PDF', url: '#' }]),
+    },
+  });
+
+  await prisma.userLessonProgress.create({
+    data: { userId: ezekiel.id, lessonId: lesson5_1_1.id, completed: true, completedAt: new Date() },
+  });
+  await prisma.userLessonProgress.create({
+    data: { userId: ezekiel.id, lessonId: lesson5_1_2.id, completed: true, completedAt: new Date() },
+  });
+
+  // --- Curso 6: Gestão & Escala ---
+  const course6 = await prisma.course.create({
+    data: {
+      id: 'course-6',
+      title: 'M&A para Pequenas e Médias Empresas',
+      instructorName: 'Dra. Camila Vasconcellos',
+      instructorRole: 'Sócia Vasconcellos Capital & M&A',
+      instructorAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80',
+      coverImage: 'https://images.unsplash.com/photo-1444653614773-995cb1ef9efa?w=800&auto=format&fit=crop&q=80',
+      backdropImage: 'https://images.unsplash.com/photo-1444653614773-995cb1ef9efa?w=1600&auto=format&fit=crop&q=80',
+      category: 'Gestão & Escala',
+      duration: '3h 40min',
+      description: 'Como estruturar, avaliar e conduzir uma fusão ou aquisição de médio porte sem abrir mão de blindagem jurídica e patrimonial.',
+      isFeatured: false,
+      tags: JSON.stringify(['Fusões e Aquisições', 'Finanças']),
+    },
+  });
+
+  const module6_1 = await prisma.courseModule.create({
+    data: { id: 'mod-6-1', courseId: course6.id, title: 'Módulo 1: Estruturando a Operação de M&A', order: 1 },
+  });
+
+  await prisma.lesson.create({
+    data: {
+      id: 'les-6-1-1',
+      moduleId: module6_1.id,
+      title: 'Aula 1: Due Diligence Sem Surpresas',
+      duration: '26:30',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
+      summary: 'Checklist prático de due diligence financeira, trabalhista e fiscal para PMEs.',
+      order: 1,
+      resources: JSON.stringify([{ name: 'Checklist_Due_Diligence.pdf', type: 'PDF', url: '#' }]),
+    },
+  });
+
+  await prisma.lesson.create({
+    data: {
+      id: 'les-6-1-2',
+      moduleId: module6_1.id,
+      title: 'Aula 2: Estrutura Societária Pós-Aquisição',
+      duration: '22:10',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
+      summary: 'Como desenhar a nova estrutura societária para proteger sócios e ativos após o fechamento.',
+      order: 2,
+      resources: JSON.stringify([{ name: 'Modelo_Estrutura_Societaria.pdf', type: 'PDF', url: '#' }]),
+    },
+  });
+
+  // --- Curso 7: Liderança & Inteligência ---
+  const course7 = await prisma.course.create({
+    data: {
+      id: 'course-7',
+      title: 'Inteligência Competitiva: Decisões Baseadas em Dados',
+      instructorName: 'Rodrigo Almeida',
+      instructorRole: 'Head de Growth & Business Intelligence',
+      instructorAvatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&auto=format&fit=crop&q=80',
+      coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
+      backdropImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1600&auto=format&fit=crop&q=80',
+      category: 'Liderança & Inteligência',
+      duration: '2h 55min',
+      description: 'Como montar um radar de inteligência competitiva para antecipar movimentos de mercado antes da concorrência.',
+      isFeatured: false,
+      tags: JSON.stringify(['Dados', 'Estratégia']),
+    },
+  });
+
+  const module7_1 = await prisma.courseModule.create({
+    data: { id: 'mod-7-1', courseId: course7.id, title: 'Módulo 1: Radar de Inteligência Competitiva', order: 1 },
+  });
+
+  await prisma.lesson.create({
+    data: {
+      id: 'les-7-1-1',
+      moduleId: module7_1.id,
+      title: 'Aula 1: Fontes de Dados que Ninguém Está Olhando',
+      duration: '17:45',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4',
+      summary: 'Mapeamento de fontes públicas e privadas para monitorar concorrentes em tempo real.',
+      order: 1,
+      resources: JSON.stringify([{ name: 'Lista_Fontes_Inteligencia.pdf', type: 'PDF', url: '#' }]),
+    },
+  });
+
+  await prisma.lesson.create({
+    data: {
+      id: 'les-7-1-2',
+      moduleId: module7_1.id,
+      title: 'Aula 2: Transformando Dados em Decisão',
+      duration: '19:20',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4',
+      summary: 'Framework para ir do dado bruto à decisão executiva em menos de uma semana.',
+      order: 2,
+      resources: JSON.stringify([{ name: 'Framework_Dado_Para_Decisao.pdf', type: 'PDF', url: '#' }]),
+    },
+  });
+
+  // --- Curso 8: Liderança & Inteligência ---
+  const course8 = await prisma.course.create({
+    data: {
+      id: 'course-8',
+      title: 'Oratória & Autoridade Executiva',
+      instructorName: "Ezekiel Dall'Bello",
+      instructorRole: 'CEO Ekoz & Especialista em Gestão',
+      instructorAvatar: '/ezekiel.jpg',
+      coverImage: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&auto=format&fit=crop&q=80',
+      backdropImage: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=1600&auto=format&fit=crop&q=80',
+      category: 'Liderança & Inteligência',
+      duration: '4h 20min',
+      description: 'A estrutura de discurso que uso em palcos e negociações de alto nível para construir autoridade em minutos, não em anos.',
+      isFeatured: false,
+      tags: JSON.stringify(['Comunicação', 'Autoridade']),
+    },
+  });
+
+  const module8_1 = await prisma.courseModule.create({
+    data: { id: 'mod-8-1', courseId: course8.id, title: 'Módulo 1: A Estrutura do Discurso de Autoridade', order: 1 },
+  });
+
+  const lesson8_1_1 = await prisma.lesson.create({
+    data: {
+      id: 'les-8-1-1',
+      moduleId: module8_1.id,
+      title: 'Aula 1: Abertura que Prende a Atenção em 10 Segundos',
+      duration: '15:30',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      summary: 'A fórmula de abertura que uso em palestras e reuniões de conselho.',
+      order: 1,
+      resources: JSON.stringify([{ name: 'Roteiro_Abertura_Executiva.pdf', type: 'PDF', url: '#' }]),
+    },
+  });
+
+  await prisma.lesson.create({
+    data: {
+      id: 'les-8-1-2',
+      moduleId: module8_1.id,
+      title: 'Aula 2: Fechamento com Chamada para Ação',
+      duration: '18:05',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+      summary: 'Como fechar qualquer apresentação com uma chamada para ação clara e irresistível.',
+      order: 2,
+      resources: JSON.stringify([{ name: 'Modelo_Fechamento_CTA.pdf', type: 'PDF', url: '#' }]),
+    },
+  });
+
+  await prisma.userLessonProgress.create({
+    data: { userId: ezekiel.id, lessonId: lesson8_1_1.id, completed: true, completedAt: new Date() },
+  });
+
+  // --- Curso 9: Lifestyle & Network (destaque) ---
+  const course9 = await prisma.course.create({
+    data: {
+      id: 'course-9',
+      title: 'Networking de Alto Nível: Relações que Escalam Negócios',
+      instructorName: 'Marcelo Bittencourt',
+      instructorRole: 'Especialista em Relacionamento Corporativo',
+      instructorAvatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&auto=format&fit=crop&q=80',
+      coverImage: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&auto=format&fit=crop&q=80',
+      backdropImage: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1600&auto=format&fit=crop&q=80',
+      category: 'Lifestyle & Network',
+      duration: '2h 30min',
+      description: 'Como construir e manter uma rede de relacionamentos executivos que gera negócios reais, sem parecer interesseiro.',
+      isFeatured: true,
+      tags: JSON.stringify(['Networking', 'Relacionamentos']),
+    },
+  });
+
+  const module9_1 = await prisma.courseModule.create({
+    data: { id: 'mod-9-1', courseId: course9.id, title: 'Módulo 1: Construindo Rede de Alto Nível', order: 1 },
+  });
+
+  await prisma.lesson.create({
+    data: {
+      id: 'les-9-1-1',
+      moduleId: module9_1.id,
+      title: 'Aula 1: Como Entrar em uma Roda de Conversa Executiva',
+      duration: '14:50',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      summary: 'Táticas práticas para se inserir em conversas de alto nível em eventos executivos.',
+      order: 1,
+      resources: JSON.stringify([{ name: 'Guia_Eventos_Executivos.pdf', type: 'PDF', url: '#' }]),
+    },
+  });
+
+  await prisma.lesson.create({
+    data: {
+      id: 'les-9-1-2',
+      moduleId: module9_1.id,
+      title: 'Aula 2: Follow-up que Gera Negócio de Verdade',
+      duration: '16:40',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+      summary: 'O sistema de follow-up que transforma contatos de evento em parcerias reais.',
+      order: 2,
+      resources: JSON.stringify([{ name: 'Sistema_Followup_Ekoz.pdf', type: 'PDF', url: '#' }]),
+    },
+  });
+
+  // --- Curso 10: Lifestyle & Network ---
+  const course10 = await prisma.course.create({
+    data: {
+      id: 'course-10',
+      title: 'Estilo de Vida Executivo: Rotina, Viagens e Performance',
+      instructorName: "Ezekiel Dall'Bello",
+      instructorRole: 'CEO Ekoz & Especialista em Gestão',
+      instructorAvatar: '/ezekiel.jpg',
+      coverImage: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&auto=format&fit=crop&q=80',
+      backdropImage: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1600&auto=format&fit=crop&q=80',
+      category: 'Lifestyle & Network',
+      duration: '3h 00min',
+      description: 'Como organizo rotina, viagens internacionais e vida pessoal sem sacrificar performance nos negócios.',
+      isFeatured: false,
+      tags: JSON.stringify(['Lifestyle', 'Rotina']),
+    },
+  });
+
+  const module10_1 = await prisma.courseModule.create({
+    data: { id: 'mod-10-1', courseId: course10.id, title: 'Módulo 1: Rotina de Alta Performance', order: 1 },
+  });
+
+  await prisma.lesson.create({
+    data: {
+      id: 'les-10-1-1',
+      moduleId: module10_1.id,
+      title: 'Aula 1: Minha Rotina Semanal Real',
+      duration: '20:15',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+      summary: 'A agenda semanal que uso para equilibrar operação, família e viagens.',
+      order: 1,
+      resources: JSON.stringify([{ name: 'Template_Rotina_Semanal.pdf', type: 'PDF', url: '#' }]),
+    },
+  });
+
+  await prisma.lesson.create({
+    data: {
+      id: 'les-10-1-2',
+      moduleId: module10_1.id,
+      title: 'Aula 2: Trabalhando de Qualquer Lugar do Mundo',
+      duration: '17:30',
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+      summary: 'Como estruturo viagens longas sem perder produtividade nem presença com a equipe.',
+      order: 2,
+      resources: JSON.stringify([{ name: 'Kit_Trabalho_Remoto_Executivo.pdf', type: 'PDF', url: '#' }]),
     },
   });
 
