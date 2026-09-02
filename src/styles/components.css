@@ -3350,9 +3350,18 @@
 
 .login-screen-brand {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
   margin-bottom: 1.75rem;
+}
+
+.login-screen-logo {
+  width: 100%;
+  max-width: 260px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
 }
 
 .login-screen-error {

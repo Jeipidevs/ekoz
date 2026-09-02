@@ -34,11 +34,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
     <div className="login-screen-root">
       <div className="login-screen-card">
         <div className="login-screen-brand">
-          <img src="/logo-ekoz.svg" alt="Ekoz" style={{ width: '42px', height: '42px' }} />
-          <div>
-            <h1 style={{ margin: 0, fontSize: '1.4rem', fontFamily: "'Outfit', sans-serif" }}>EKOZ</h1>
-            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Acesso Executivo</p>
-          </div>
+          <img src="/LOGO-EKOZ.png" alt="Ekoz" className="login-screen-logo" />
+          <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
+            Acesso Executivo
+          </p>
         </div>
 
         {errorMessage && (
