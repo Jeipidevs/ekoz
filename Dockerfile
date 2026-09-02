@@ -27,10 +27,11 @@ RUN npm install
 COPY server/tsconfig.json ./
 COPY server/src ./src/
 
-# DATABASE_URL real só existe em runtime (injetada pelo EasyPanel); aqui é só
-# um placeholder para o `prisma generate` conseguir resolver env("DATABASE_URL")
-# no schema — ele não abre conexão com o banco.
+# DATABASE_URL/DIRECT_URL reais só existem em runtime (injetadas pelo EasyPanel);
+# aqui são só placeholders para o `prisma generate` resolver env() no schema —
+# ele não abre conexão com o banco.
 ENV DATABASE_URL="postgresql://user:password@localhost:5432/ekoz_db"
+ENV DIRECT_URL="postgresql://user:password@localhost:5432/ekoz_db"
 RUN npx prisma generate
 RUN npm run build
 
@@ -54,8 +55,9 @@ COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
 WORKDIR /app/server
 ENV NODE_ENV=production
 ENV INTERNAL_PORT=3001
-# DATABASE_URL real é injetada pelo EasyPanel via variável de ambiente do serviço
+# DATABASE_URL/DIRECT_URL reais são injetadas pelo EasyPanel via variáveis de ambiente do serviço
 ENV DATABASE_URL="postgresql://user:password@localhost:5432/ekoz_db"
+ENV DIRECT_URL="postgresql://user:password@localhost:5432/ekoz_db"
 
 COPY server/package*.json ./
 COPY server/prisma ./prisma/
