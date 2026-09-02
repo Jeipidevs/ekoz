@@ -93,12 +93,16 @@ export interface Course {
   instructorRole: string;
   instructorAvatar: string;
   coverImage: string;
+  backdropImage?: string;
   category: 'Alta Performance' | 'Gestão & Escala' | 'Liderança & Inteligência' | 'Lifestyle & Network';
   duration: string;
   lessonsCount: number;
   description: string;
   modules: CourseModule[];
   progress: number;
+  isFeatured?: boolean;
+  tags?: string[];
+  learnersCount?: number;
 }
 
 export interface EventItem {
