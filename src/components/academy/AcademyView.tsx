@@ -1,105 +1,69 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { useEkoz } from '../../context/EkozContext';
-import { CourseCard } from './CourseCard';
+import { AcademyHero } from './AcademyHero';
+import { CourseRow } from './CourseRow';
 import { LessonPlayerModal } from './LessonPlayerModal';
 import { Course } from '../../types';
-import {
-  GraduationCap,
-  Sparkles,
-  BookOpen,
-  CheckCircle,
-  Clock,
-  PlayCircle,
-} from 'lucide-react';
+
+const CATEGORY_SLUGS: Record<Course['category'], string> = {
+  'Alta Performance': 'alta-performance',
+  'Gestão & Escala': 'gestao-escala',
+  'Liderança & Inteligência': 'lideranca-inteligencia',
+  'Lifestyle & Network': 'lifestyle-network',
+};
+
+const CATEGORIES = Object.keys(CATEGORY_SLUGS) as Course['category'][];
 
 export const AcademyView: React.FC = () => {
   const { courses, selectedCourse, setSelectedCourse } = useEkoz();
-  const [activeCategory, setActiveCategory] = useState<string>('Todas');
 
-  const categories = [
-    'Todas',
-    'Alta Performance',
-    'Gestão & Escala',
-    'Liderança & Inteligência',
-    'Lifestyle & Network',
-  ];
+  const featuredCourses = useMemo(() => courses.filter((c) => c.isFeatured), [courses]);
 
-  const filteredCourses = courses.filter((c) => {
-    if (activeCategory === 'Todas') return true;
-    return c.category === activeCategory;
-  });
+  const continueWatching = useMemo(
+    () => courses.filter((c) => c.progress > 0 && c.progress < 100),
+    [courses]
+  );
+
+  const trending = useMemo(
+    () => [...courses].sort((a, b) => (b.learnersCount || 0) - (a.learnersCount || 0)).slice(0, 8),
+    [courses]
+  );
+
+  const scrollToCategory = (category: Course['category']) => {
+    document
+      .getElementById(`academy-row-${CATEGORY_SLUGS[category]}`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <div className="academy-view-container">
-      {/* Hero Banner */}
-      <div className="ekoz-card academy-hero-card">
-        <div className="academy-hero-content">
-          <div className="hero-badge-row">
-            <span className="badge badge-gold">
-              <GraduationCap size={13} />
-              <span>BRAÇO EDUCACIONAL EXECUTIVO</span>
-            </span>
-            <span className="badge badge-moss">CONTEÚDO EXCLUSIVO</span>
-          </div>
+      <AcademyHero courses={featuredCourses} onSelect={setSelectedCourse} />
 
-          <h1 className="academy-hero-title">
-            Ekoz Academy: <span className="text-gold-gradient">Masterclasses de Alta Performance</span>
-          </h1>
-
-          <p className="academy-hero-desc">
-            Aulas aprofundadas sobre gestão de equipes autônomas, biohacking para empresários,
-            blindagem emocional e estratégia de escala com o CEO <strong>Ezekiel Dall'Bello</strong> e mentores convidados.
-          </p>
-
-          <div className="academy-stats-bar">
-            <div className="stat-pill">
-              <Clock size={16} color="#DFC16E" />
-              <span>+35 Horas de Conteúdo</span>
-            </div>
-            <div className="stat-pill">
-              <PlayCircle size={16} color="#DFC16E" />
-              <span>3 Masterclasses Completas</span>
-            </div>
-            <div className="stat-pill">
-              <CheckCircle size={16} color="#DFC16E" />
-              <span>Certificação Ekoz Black</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Categories Filter */}
-      <div className="academy-filter-bar">
-        <div className="category-scroll-list">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`cat-filter-btn ${activeCategory === cat ? 'active' : ''}`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Courses Grid */}
-      <div className="courses-grid">
-        {filteredCourses.map((course) => (
-          <CourseCard
-            key={course.id}
-            course={course}
-            onOpen={(c) => setSelectedCourse(c)}
-          />
+      <div className="academy-quick-nav">
+        {CATEGORIES.map((cat) => (
+          <button key={cat} className="academy-quick-nav-btn" onClick={() => scrollToCategory(cat)}>
+            {cat}
+          </button>
         ))}
       </div>
 
-      {/* Lesson Player Modal */}
+      <div className="academy-rows">
+        <CourseRow title="Continuar Assistindo" courses={continueWatching} onOpen={setSelectedCourse} />
+        <CourseRow title="Em Alta no Ecossistema" courses={trending} onOpen={setSelectedCourse} showRanking />
+
+        {CATEGORIES.map((cat) => (
+          <div key={cat} id={`academy-row-${CATEGORY_SLUGS[cat]}`}>
+            <CourseRow
+              title={cat}
+              courses={courses.filter((c) => c.category === cat)}
+              onOpen={setSelectedCourse}
+            />
+          </div>
+        ))}
+      </div>
+
       {selectedCourse && (
-        <LessonPlayerModal
-          course={selectedCourse}
-          onClose={() => setSelectedCourse(null)}
-        />
+        <LessonPlayerModal course={selectedCourse} onClose={() => setSelectedCourse(null)} />
       )}
     </div>
   );
