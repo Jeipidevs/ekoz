@@ -32,25 +32,9 @@
 }
 
 .navbar-logo-img {
-  width: 40px;
-  height: 40px;
+  height: 32px;
+  width: auto;
   filter: drop-shadow(0 0 10px rgba(203, 165, 72, 0.35));
-}
-
-.navbar-brand-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.navbar-title {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.35rem;
-  letter-spacing: 0.12em;
-  background: var(--gradient-gold);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  line-height: 1;
 }
 
 .navbar-subtitle {
@@ -2995,11 +2979,8 @@
     flex-shrink: 0;
   }
   .navbar-logo-img {
-    width: 32px;
-    height: 32px;
-  }
-  .navbar-title {
-    font-size: 1.15rem;
+    height: 26px;
+    width: auto;
   }
   .navbar-subtitle {
     font-size: 0.52rem;
@@ -3358,10 +3339,9 @@
 
 .login-screen-logo {
   width: 100%;
-  max-width: 260px;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  border-radius: 10px;
+  max-width: 220px;
+  height: auto;
+  object-fit: contain;
 }
 
 .login-screen-error {

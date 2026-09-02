@@ -34,7 +34,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
     <div className="login-screen-root">
       <div className="login-screen-card">
         <div className="login-screen-brand">
-          <img src="/LOGO-EKOZ.png" alt="Ekoz" className="login-screen-logo" />
+          <img src="/logo-ekoz-wordmark.png" alt="Ekoz" className="login-screen-logo" />
           <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
             Acesso Executivo
           </p>

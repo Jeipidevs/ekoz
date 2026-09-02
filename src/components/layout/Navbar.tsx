@@ -30,11 +30,8 @@ export const Navbar: React.FC = () => {
     <header className="navbar-container">
       <div className="navbar-left">
         <div className="navbar-brand">
-          <img src="/logo-ekoz.svg" alt="Ekoz" className="navbar-logo-img" />
-          <div className="navbar-brand-text">
-            <span className="navbar-title">EKOZ</span>
-            <span className="navbar-subtitle">Ecosystem</span>
-          </div>
+          <img src="/logo-ekoz-wordmark.png" alt="Ekoz" className="navbar-logo-img" />
+          <span className="navbar-subtitle">Ecosystem</span>
         </div>
 
         <div className="navbar-search-wrapper">
