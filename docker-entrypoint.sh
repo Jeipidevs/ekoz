@@ -6,6 +6,10 @@ echo "🏛️ ==========================================="
 
 cd /app/server
 
+# Sincronizar schema Prisma com o Postgres (idempotente — não apaga dados)
+echo "🗄️  Sincronizando schema Prisma com o banco..."
+npx prisma db push --skip-generate
+
 # Iniciar Node API em background
 echo "🚀 Iniciando Backend API Node.js (Porta 3001)..."
 node dist/index.js &

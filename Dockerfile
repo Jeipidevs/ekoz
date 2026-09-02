@@ -27,10 +27,11 @@ RUN npm install
 COPY server/tsconfig.json ./
 COPY server/src ./src/
 
-ENV DATABASE_URL="file:/app/server/prisma/dev.db"
+# DATABASE_URL real só existe em runtime (injetada pelo EasyPanel); aqui é só
+# um placeholder para o `prisma generate` conseguir resolver env("DATABASE_URL")
+# no schema — ele não abre conexão com o banco.
+ENV DATABASE_URL="postgresql://user:password@localhost:5432/ekoz_db"
 RUN npx prisma generate
-RUN npx prisma db push
-RUN npx tsx prisma/seed.ts
 RUN npm run build
 
 # ==========================================
@@ -53,7 +54,8 @@ COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
 WORKDIR /app/server
 ENV NODE_ENV=production
 ENV INTERNAL_PORT=3001
-ENV DATABASE_URL="file:/app/server/prisma/dev.db"
+# DATABASE_URL real é injetada pelo EasyPanel via variável de ambiente do serviço
+ENV DATABASE_URL="postgresql://user:password@localhost:5432/ekoz_db"
 
 COPY server/package*.json ./
 COPY server/prisma ./prisma/
@@ -61,9 +63,9 @@ COPY server/prisma ./prisma/
 RUN npm install --omit=dev
 RUN npx prisma generate
 
-# Copiar build e banco de dados pré-semeado
+# Copiar build (sem banco pré-semeado — o schema é sincronizado com o Postgres
+# real em runtime pelo docker-entrypoint.sh)
 COPY --from=backend-build /app/server/dist ./dist
-COPY --from=backend-build /app/server/prisma/dev.db ./prisma/dev.db
 
 # Script de entrada
 WORKDIR /app
