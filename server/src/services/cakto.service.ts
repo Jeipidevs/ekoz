@@ -9,6 +9,7 @@ export interface CaktoOrderRequest {
 }
 
 export interface CaktoWebhookPayload {
+  secret?: string;
   event: 'order.paid' | 'order.approved' | 'order.refunded' | 'subscription.canceled';
   data: {
     id: string;

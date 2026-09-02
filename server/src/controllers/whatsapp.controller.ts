@@ -60,6 +60,11 @@ export class WhatsAppController {
 
   public static async testDispatch(req: Request, res: Response): Promise<void> {
     try {
+      if (!req.user || (req.user.role !== 'CEO' && req.user.role !== 'Admin')) {
+        res.status(403).json({ error: 'Permissão exclusiva para CEO ou Admin' });
+        return;
+      }
+
       const { phone, title, body } = req.body;
 
       if (!phone) {

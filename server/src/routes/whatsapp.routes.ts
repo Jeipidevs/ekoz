@@ -5,6 +5,6 @@ import { authenticate } from '../middleware/auth.middleware.js';
 const router = Router();
 
 router.post('/send-push', authenticate, WhatsAppController.sendPush);
-router.post('/test', WhatsAppController.testDispatch);
+router.post('/test', authenticate, WhatsAppController.testDispatch);
 
 export default router;

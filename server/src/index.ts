@@ -21,7 +21,7 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 app.use(cors({
-  origin: '*',
+  origin: config.corsOrigins,
   credentials: true,
 }));
 app.use(morgan('dev'));
