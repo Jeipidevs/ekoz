@@ -1,7 +1,7 @@
 import React from 'react';
 import { Course } from '../../types';
 import { useEkoz } from '../../context/EkozContext';
-import { Play, Plus, Info } from 'lucide-react';
+import { Play, Plus, ChevronDown } from 'lucide-react';
 
 interface CourseCardProps {
   course: Course;
@@ -26,49 +26,48 @@ export const CourseCard: React.FC<CourseCardProps> = ({ course, onOpen, rank }) 
     });
   };
 
-  return (
-    <div
-      className="course-row-card"
-      style={{ backgroundImage: `url(${course.coverImage})` }}
-      onClick={() => onOpen(course)}
-    >
-      {rank && <span className="course-row-card-rank">TOP {rank}</span>}
+  const handleOpen = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onOpen(course);
+  };
 
-      <div className="course-row-card-shade">
-        <p className="course-row-card-title">{course.title}</p>
-        <p className="course-row-card-meta">{metaLabel}</p>
-        <div className="course-row-card-icons">
-          <button
-            className="course-row-icon-btn gold"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpen(course);
-            }}
-            aria-label="Assistir"
-          >
-            <Play size={12} fill="currentColor" />
-          </button>
-          <button className="course-row-icon-btn" onClick={handleAddToList} aria-label="Adicionar à lista">
-            <Plus size={12} />
-          </button>
-          <button
-            className="course-row-icon-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpen(course);
-            }}
-            aria-label="Mais informações"
-          >
-            <Info size={12} />
-          </button>
+  return (
+    <div className="course-row-card" onClick={() => onOpen(course)}>
+      <div className="course-row-card-inner">
+        <div className="course-row-card-poster" style={{ backgroundImage: `url(${course.coverImage})` }}>
+          {rank && <span className="course-row-card-rank">TOP {rank}</span>}
+          {course.progress > 0 && (
+            <div className="course-row-card-progress">
+              <div className="course-row-card-progress-fill" style={{ width: `${course.progress}%` }} />
+            </div>
+          )}
+        </div>
+
+        <div className="course-row-card-details">
+          <div className="course-row-card-icons">
+            <button className="course-row-icon-btn gold" onClick={handleOpen} aria-label="Assistir">
+              <Play size={13} fill="currentColor" />
+            </button>
+            <button className="course-row-icon-btn" onClick={handleAddToList} aria-label="Adicionar à lista">
+              <Plus size={13} />
+            </button>
+            <button
+              className="course-row-icon-btn push-right"
+              onClick={handleOpen}
+              aria-label="Mais informações"
+            >
+              <ChevronDown size={13} />
+            </button>
+          </div>
+
+          <p className="course-row-card-title">{course.title}</p>
+          <p className="course-row-card-meta">{metaLabel}</p>
+
+          {course.tags && course.tags.length > 0 && (
+            <p className="course-row-card-tags">{course.tags.join(' • ')}</p>
+          )}
         </div>
       </div>
-
-      {course.progress > 0 && (
-        <div className="course-row-card-progress">
-          <div className="course-row-card-progress-fill" style={{ width: `${course.progress}%` }} />
-        </div>
-      )}
     </div>
   );
 };

@@ -187,11 +187,20 @@
 
 .course-row-track {
   display: flex;
+  /* overflow-x:auto força overflow-y a computar "auto" mesmo escrevendo
+     "visible" (regra do spec de CSS Overflow) — em vez de depender disso,
+     reservamos altura suficiente pra caber o painel expandido do card no
+     hover, então o conteúdo nunca chega a exceder o container e o corte
+     nunca é acionado. align-items:flex-start evita que os cards estiquem
+     para preencher essa altura extra. */
+  align-items: flex-start;
+  height: 300px;
   gap: 0.9rem;
   overflow-x: auto;
+  overflow-y: hidden;
   scroll-behavior: smooth;
   scrollbar-width: none;
-  padding-bottom: 0.5rem;
+  padding: 0.4rem 0.5rem 0;
 }
 
 .course-row-track::-webkit-scrollbar {
@@ -222,23 +231,48 @@
   transform: scaleX(-1);
 }
 
-/* Card da fileira */
+/* Card da fileira — no hover, expande PARA BAIXO revelando um painel de
+   ações/metadados, em vez de sobrepor um overlay na própria imagem
+   (padrão real da Netflix: o pôster nunca escurece, o painel é uma peça
+   separada abaixo dele). O wrapper externo reserva só a altura do pôster
+   no fluxo da fileira; o wrapper interno é position:absolute e cresce
+   livremente por cima dos vizinhos ao revelar o painel. */
 .course-row-card {
   position: relative;
-  flex: 0 0 220px;
+  flex: 0 0 224px;
   height: 130px;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  cursor: pointer;
-  background-size: cover;
-  background-position: center;
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease;
 }
 
-.course-row-card:hover {
-  transform: scale(1.14) translateY(-10px);
-  box-shadow: var(--shadow-lg), 0 0 0 2px var(--border-gold-glow);
-  z-index: 5;
+.course-row-card-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-elevated);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.25s ease;
+  z-index: 1;
+}
+
+.course-row-card:hover .course-row-card-inner {
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-gold-glow);
+  z-index: 30;
+}
+
+.course-row-card-poster {
+  position: relative;
+  width: 100%;
+  height: 130px;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.35s ease;
+}
+
+.course-row-card:hover .course-row-card-poster {
+  transform: scale(1.05);
 }
 
 .course-row-card-rank {
@@ -256,61 +290,6 @@
   z-index: 2;
 }
 
-.course-row-card-shade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(10, 18, 14, 0) 30%, rgba(10, 18, 14, 0.95) 100%);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 0.65rem;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.course-row-card:hover .course-row-card-shade {
-  opacity: 1;
-}
-
-.course-row-card-title {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--color-white);
-  margin: 0 0 0.25rem;
-  line-height: 1.25;
-}
-
-.course-row-card-meta {
-  font-size: 0.66rem;
-  color: var(--color-gold-300);
-  margin: 0 0 0.4rem;
-}
-
-.course-row-card-icons {
-  display: flex;
-  gap: 0.4rem;
-}
-
-.course-row-icon-btn {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: rgba(230, 236, 233, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-white);
-  cursor: pointer;
-  padding: 0;
-}
-
-.course-row-icon-btn.gold {
-  background: var(--color-gold-400);
-  color: var(--bg-primary);
-  border: none;
-}
-
 .course-row-card-progress {
   position: absolute;
   left: 0;
@@ -323,6 +302,86 @@
 .course-row-card-progress-fill {
   height: 100%;
   background: var(--gradient-gold);
+}
+
+/* Painel de detalhes — escondido por padrão (altura 0), revelado no hover */
+.course-row-card-details {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0 0.75rem;
+  background: var(--bg-elevated);
+  transition: max-height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
+}
+
+.course-row-card:hover .course-row-card-details {
+  max-height: 150px;
+  opacity: 1;
+  padding: 0.65rem 0.75rem 0.75rem;
+}
+
+.course-row-card-icons {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.55rem;
+}
+
+.course-row-icon-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(230, 236, 233, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-white);
+  cursor: pointer;
+  padding: 0;
+  transition: border-color var(--transition-fast);
+}
+
+.course-row-icon-btn:hover {
+  border-color: var(--color-white);
+}
+
+.course-row-icon-btn.gold {
+  background: var(--color-gold-400);
+  color: var(--bg-primary);
+  border: none;
+}
+
+.course-row-icon-btn.push-right {
+  margin-left: auto;
+}
+
+.course-row-card-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-white);
+  margin: 0 0 0.25rem;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.course-row-card-meta {
+  font-size: 0.66rem;
+  color: var(--color-gold-300);
+  font-weight: 600;
+  margin: 0 0 0.3rem;
+}
+
+.course-row-card-tags {
+  font-size: 0.62rem;
+  color: var(--color-concrete-400);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @media (max-width: 1024px) {
@@ -373,8 +432,16 @@
     padding: 1.25rem 1.25rem 2rem;
   }
 
+  .course-row-track {
+    height: 250px;
+  }
+
   .course-row-card {
     flex: 0 0 168px;
+    height: 100px;
+  }
+
+  .course-row-card-poster {
     height: 100px;
   }
 
