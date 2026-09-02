@@ -292,11 +292,14 @@ export const coursesList: Course[] = [
     instructorRole: 'CEO Ekoz | Mentor de Alta Performance',
     instructorAvatar: '/ezekiel.jpg',
     coverImage: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
+    backdropImage: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1600&auto=format&fit=crop&q=80',
     category: 'Alta Performance',
     duration: '6h 40min',
     lessonsCount: 14,
     description: 'Domine a metodologia prática desenvolvida por Ezekiel Dall\'Bello para blindar sua mente contra distrações, sustentar energia física o dia todo e tomar decisões sob pressão com total serenidade.',
     progress: 65,
+    isFeatured: true,
+    learnersCount: 3,
     modules: [
       {
         id: 'mod-1',
@@ -363,11 +366,14 @@ export const coursesList: Course[] = [
     instructorRole: 'Especialistas em Expansão & Redes',
     instructorAvatar: '/ezekiel.jpg',
     coverImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop&q=80',
+    backdropImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&auto=format&fit=crop&q=80',
     category: 'Gestão & Escala',
     duration: '8h 15min',
     lessonsCount: 18,
     description: 'Aprenda o método de padronização, indicadores e delegação responsável para fazer seu negócio rodar sem depender da sua presença operacional física diária.',
     progress: 25,
+    isFeatured: true,
+    learnersCount: 2,
     modules: [
       {
         id: 'mod-2-1',
@@ -400,11 +406,14 @@ export const coursesList: Course[] = [
     instructorRole: 'Mister RS 2025 | Palestrante',
     instructorAvatar: '/ezekiel.jpg',
     coverImage: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&auto=format&fit=crop&q=80',
+    backdropImage: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=1600&auto=format&fit=crop&q=80',
     category: 'Lifestyle & Network',
     duration: '5h 30min',
     lessonsCount: 12,
     description: 'Como transformar sua imagem e comunicação na maior alavanca de vendas e reputação para suas empresas. Oratória magnética, estilo e networking de alto valor.',
     progress: 0,
+    isFeatured: false,
+    learnersCount: 0,
     modules: [
       {
         id: 'mod-3-1',
