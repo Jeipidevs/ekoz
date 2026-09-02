@@ -1,76 +1,74 @@
 import React from 'react';
 import { Course } from '../../types';
-import { Play, Clock, BookOpen, CheckCircle2 } from 'lucide-react';
+import { useEkoz } from '../../context/EkozContext';
+import { Play, Plus, Info } from 'lucide-react';
 
 interface CourseCardProps {
   course: Course;
   onOpen: (course: Course) => void;
+  rank?: number;
 }
 
-export const CourseCard: React.FC<CourseCardProps> = ({ course, onOpen }) => {
+export const CourseCard: React.FC<CourseCardProps> = ({ course, onOpen, rank }) => {
+  const { triggerToast } = useEkoz();
+
+  const metaLabel =
+    course.progress > 0 && course.progress < 100
+      ? `${course.progress}% assistido`
+      : `${course.lessonsCount} aulas · ${course.duration}`;
+
+  const handleAddToList = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    triggerToast({
+      title: 'Em breve',
+      message: 'Listas personalizadas de cursos chegam em uma próxima atualização.',
+      type: 'info',
+    });
+  };
+
   return (
-    <div className="ekoz-card course-card">
-      <div className="course-cover-wrapper" onClick={() => onOpen(course)}>
-        <img src={course.coverImage} alt={course.title} className="course-cover-img" />
-        <div className="course-overlay-play">
-          <div className="play-button-circle">
-            <Play size={22} fill="#0F1713" color="#0F1713" />
-          </div>
+    <div
+      className="course-row-card"
+      style={{ backgroundImage: `url(${course.coverImage})` }}
+      onClick={() => onOpen(course)}
+    >
+      {rank && <span className="course-row-card-rank">TOP {rank}</span>}
+
+      <div className="course-row-card-shade">
+        <p className="course-row-card-title">{course.title}</p>
+        <p className="course-row-card-meta">{metaLabel}</p>
+        <div className="course-row-card-icons">
+          <button
+            className="course-row-icon-btn gold"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpen(course);
+            }}
+            aria-label="Assistir"
+          >
+            <Play size={12} fill="currentColor" />
+          </button>
+          <button className="course-row-icon-btn" onClick={handleAddToList} aria-label="Adicionar à lista">
+            <Plus size={12} />
+          </button>
+          <button
+            className="course-row-icon-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpen(course);
+            }}
+            aria-label="Mais informações"
+          >
+            <Info size={12} />
+          </button>
         </div>
-        <span className="course-category-badge">{course.category}</span>
       </div>
 
-      <div className="course-card-body">
-        <div className="course-meta-top">
-          <span className="course-duration">
-            <Clock size={13} />
-            {course.duration}
-          </span>
-          <span className="course-lessons-count">
-            <BookOpen size={13} />
-            {course.lessonsCount} aulas
-          </span>
+      {course.progress > 0 && (
+        <div className="course-row-card-progress">
+          <div className="course-row-card-progress-fill" style={{ width: `${course.progress}%` }} />
         </div>
-
-        <h3 className="course-card-title" onClick={() => onOpen(course)}>
-          {course.title}
-        </h3>
-
-        <p className="course-card-desc">{course.description}</p>
-
-        {/* Instructor */}
-        <div className="course-instructor-row">
-          <img
-            src={course.instructorAvatar}
-            alt={course.instructor}
-            className="instructor-avatar-sm"
-          />
-          <div className="instructor-info-sm">
-            <span className="inst-name-sm">{course.instructor}</span>
-            <span className="inst-role-sm">{course.instructorRole}</span>
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="course-progress-section">
-          <div className="progress-info-row">
-            <span className="progress-label">Progresso</span>
-            <span className="progress-percent">{course.progress}%</span>
-          </div>
-          <div className="progress-track">
-            <div
-              className="progress-bar-fill"
-              style={{ width: `${course.progress}%` }}
-            ></div>
-          </div>
-        </div>
-
-        {/* CTA Button */}
-        <button onClick={() => onOpen(course)} className="btn btn-gold btn-sm full-width mt-3">
-          <Play size={14} fill="currentColor" />
-          <span>{course.progress > 0 ? 'Continuar Assistindo' : 'Iniciar Masterclass'}</span>
-        </button>
-      </div>
+      )}
     </div>
   );
 };
