@@ -67,7 +67,7 @@ export class CaktoService {
     let temporaryPassword: string | null = null;
 
     if (!user) {
-      temporaryPassword = crypto.randomBytes(6).toString('hex');
+      temporaryPassword = crypto.randomBytes(16).toString('hex'); // 128 bits de entropia
       const passwordHash = await bcrypt.hash(temporaryPassword, 10);
       user = await prisma.user.create({
         data: {
