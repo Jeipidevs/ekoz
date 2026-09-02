@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useEkoz } from '../../context/EkozContext';
 import {
   Layers,
@@ -15,6 +15,7 @@ import { ActiveTab } from '../../types';
 
 export const Sidebar: React.FC = () => {
   const { activeTab, setActiveTab, setWhatsappPushOpen, setCheckoutOpen } = useEkoz();
+  const [expanded, setExpanded] = useState(false);
 
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; badge?: string }[] = [
     {
@@ -54,7 +55,11 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="sidebar-container">
+    <aside
+      className={`sidebar-container ${expanded ? 'expanded' : ''}`}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
+    >
       <div className="sidebar-nav-section">
         <span className="sidebar-section-title">PLATAFORMA EKOZ</span>
         <nav className="sidebar-nav-list">
