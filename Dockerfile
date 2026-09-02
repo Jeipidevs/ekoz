@@ -52,7 +52,7 @@ COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
 # Configurar Backend
 WORKDIR /app/server
 ENV NODE_ENV=production
-ENV PORT=3001
+ENV INTERNAL_PORT=3001
 ENV DATABASE_URL="file:/app/server/prisma/dev.db"
 
 COPY server/package*.json ./
