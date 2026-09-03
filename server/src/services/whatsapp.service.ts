@@ -68,8 +68,8 @@ export class WhatsAppService {
     console.log(message);
 
     if (!config.evolutionApiUrl || !config.evolutionInstanceName || !config.evolutionApiKey) {
-      console.warn('⚠️  Evolution API não configurada (EVOLUTION_API_URL/INSTANCE_NAME/API_KEY) — envio simulado.');
-      return { success: true, messageId: `mock-msg-${Date.now()}` };
+      console.error('❌ Evolution API não configurada (EVOLUTION_API_URL/INSTANCE_NAME/API_KEY) — mensagem NÃO enviada.');
+      return { success: false, error: 'Evolution API não configurada' };
     }
 
     try {

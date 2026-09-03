@@ -24,6 +24,7 @@ interface ToastData {
 
 interface EkozContextType {
   user: User;
+  setUser: (user: User) => void;
   members: User[];
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
@@ -434,6 +435,7 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
     <EkozContext.Provider
       value={{
         user,
+        setUser,
         members,
         activeTab,
         setActiveTab,

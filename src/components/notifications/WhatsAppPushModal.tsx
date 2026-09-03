@@ -1,48 +1,33 @@
 import React, { useState } from 'react';
 import { useEkoz } from '../../context/EkozContext';
-import {
-  X,
-  Smartphone,
-  CheckCircle2,
-  Bell,
-  MessageCircle,
-  Sparkles,
-  ArrowRight,
-  ShieldCheck,
-  Send,
-} from 'lucide-react';
+import { api } from '../../services/api';
+import { X, Smartphone } from 'lucide-react';
 
 export const WhatsAppPushModal: React.FC = () => {
-  const { whatsappPushOpen, setWhatsappPushOpen, triggerToast, user } = useEkoz();
-  const [phoneNumber, setPhoneNumber] = useState('+55 55 99999-8888');
-  const [lessonAlert, setLessonAlert] = useState(true);
-  const [messagesAlert, setMessagesAlert] = useState(true);
-  const [eventsAlert, setEventsAlert] = useState(true);
+  const { whatsappPushOpen, setWhatsappPushOpen, triggerToast, user, setUser } = useEkoz();
+  const [phoneNumber, setPhoneNumber] = useState(user.whatsapp || '');
+  const [saving, setSaving] = useState(false);
 
   if (!whatsappPushOpen) return null;
 
-  const handleTestTrigger = (type: 'aula' | 'chat' | 'evento') => {
-    if (type === 'aula') {
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const { user: updated } = await api.updateProfile({ whatsapp: phoneNumber });
+      setUser(updated);
       triggerToast({
-        title: '📲 WhatsApp Push: Nova Aula Liberada!',
-        message:
-          'Ezekiel Dall\'Bello liberou a aula "2.2 O Homem Além da Beleza". Toque para assistir agora na Ekoz Academy.',
-        type: 'whatsapp',
+        title: 'Configurações Atualizadas',
+        message: `Notificações WhatsApp serão enviadas para ${phoneNumber}`,
+        type: 'success',
       });
-    } else if (type === 'chat') {
+    } catch (err: any) {
       triggerToast({
-        title: '📲 WhatsApp Push: Mensagem no Ekoz',
-        message:
-          'Dra. Camila Vasconcellos respondeu seu recado sobre holdings familiares.',
-        type: 'whatsapp',
+        title: 'Erro ao salvar',
+        message: err.message || 'Não foi possível atualizar seu número.',
+        type: 'info',
       });
-    } else {
-      triggerToast({
-        title: '📲 WhatsApp Push: Credenciamento Aberto',
-        message:
-          'Últimas 5 vagas para o Ekoz Executive Summit em Gramado! Confirme sua vaga.',
-        type: 'whatsapp',
-      });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -79,91 +64,23 @@ export const WhatsAppPushModal: React.FC = () => {
               type="text"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
+              placeholder="+55 51 99999-9999"
               className="ekoz-input"
             />
             <button
-              onClick={() => {
-                triggerToast({
-                  title: 'Configurações Atualizadas',
-                  message: `Notificações WhatsApp salvas para ${phoneNumber}`,
-                  type: 'success',
-                });
-              }}
+              onClick={handleSave}
+              disabled={saving || !phoneNumber.trim()}
               className="btn btn-whatsapp btn-sm"
             >
-              Salvar
+              {saving ? 'Salvando...' : 'Salvar'}
             </button>
           </div>
         </div>
 
-        {/* Notification Preferences */}
-        <div className="notification-toggles-list mt-3">
-          <label className="toggle-item">
-            <input
-              type="checkbox"
-              checked={lessonAlert}
-              onChange={(e) => setLessonAlert(e.target.checked)}
-            />
-            <div className="toggle-label-wrap">
-              <span className="toggle-title">Novas Aulas e Masterclasses</span>
-              <span className="toggle-desc">Aviso quando o CEO ou mentores sobem novos conteúdos</span>
-            </div>
-          </label>
-
-          <label className="toggle-item">
-            <input
-              type="checkbox"
-              checked={messagesAlert}
-              onChange={(e) => setMessagesAlert(e.target.checked)}
-            />
-            <div className="toggle-label-wrap">
-              <span className="toggle-title">Mensagens Diretas de Empresários</span>
-              <span className="toggle-desc">Notificar quando alguém inicia uma conversa de negócios</span>
-            </div>
-          </label>
-
-          <label className="toggle-item">
-            <input
-              type="checkbox"
-              checked={eventsAlert}
-              onChange={(e) => setEventsAlert(e.target.checked)}
-            />
-            <div className="toggle-label-wrap">
-              <span className="toggle-title">Eventos & Expedições Extraordinárias</span>
-              <span className="toggle-desc">Abertura de lotes com vagas limitadas para membros</span>
-            </div>
-          </label>
-        </div>
-
-        {/* Simulator Buttons */}
-        <div className="simulator-section-box mt-4">
-          <span className="simulator-label">🧪 TESTAR DISPARO DE PUSH AGORA:</span>
-          <div className="simulator-buttons-row mt-2">
-            <button
-              onClick={() => handleTestTrigger('aula')}
-              className="btn btn-secondary btn-sm"
-            >
-              <Sparkles size={14} color="#DFC16E" />
-              <span>Simular Nova Aula</span>
-            </button>
-
-            <button
-              onClick={() => handleTestTrigger('chat')}
-              className="btn btn-secondary btn-sm"
-            >
-              <MessageCircle size={14} color="#25D366" />
-              <span>Simular Mensagem Chat</span>
-            </button>
-
-            <button
-              onClick={() => handleTestTrigger('evento')}
-              className="btn btn-secondary btn-sm"
-            >
-              <Bell size={14} color="#DFC16E" />
-              <span>Simular Alerta de Evento</span>
-            </button>
-          </div>
-        </div>
+        <p className="modal-subtitle mt-3" style={{ fontSize: '0.8rem' }}>
+          Avisos de novas masterclasses, mensagens de outros membros e eventos são enviados pela
+          liderança da Ekoz para este número sempre que houver novidade.
+        </p>
 
         <div className="modal-footer-row mt-4">
           <button
