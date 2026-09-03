@@ -9,6 +9,7 @@ import {
   ChatMessage,
   NotificationItem,
   AdminMember,
+  AdminSubscription,
 } from '../types';
 
 const API_BASE =
@@ -243,6 +244,18 @@ class ApiClient {
     return this.request<{ user: AdminMember }>(`/admin/users/${userId}/active`, {
       method: 'PATCH',
       body: JSON.stringify({ active }),
+    });
+  }
+
+  public async adminListSubscriptions(status?: string): Promise<AdminSubscription[]> {
+    const query = status ? `?status=${encodeURIComponent(status)}` : '';
+    const data = await this.request<{ subscriptions: AdminSubscription[] }>(`/admin/subscriptions${query}`);
+    return data.subscriptions;
+  }
+
+  public async adminRevokeSubscription(subscriptionId: string): Promise<{ subscription: AdminSubscription }> {
+    return this.request<{ subscription: AdminSubscription }>(`/admin/subscriptions/${subscriptionId}/revoke`, {
+      method: 'PATCH',
     });
   }
 }

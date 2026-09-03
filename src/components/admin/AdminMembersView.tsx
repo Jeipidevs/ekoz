@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { ShieldCheck, Search, RefreshCw } from 'lucide-react';
+import { Search, RefreshCw } from 'lucide-react';
 import { api } from '../../services/api';
 import { AdminMember, UserRole } from '../../types';
 import { useEkoz } from '../../context/EkozContext';
@@ -60,19 +60,10 @@ export const AdminMembersView: React.FC = () => {
   };
 
   return (
-    <div className="admin-view-container">
-      <div className="ekoz-card admin-hero-card">
-        <div className="hero-badge-row">
-          <span className="badge badge-gold">
-            <ShieldCheck size={13} />
-            <span>PAINEL ADMINISTRATIVO</span>
-          </span>
-        </div>
-        <h1 className="admin-view-title">Gerenciar Membros</h1>
-        <p className="admin-view-subtitle">
-          {members.length} membro{members.length === 1 ? '' : 's'} encontrado{members.length === 1 ? '' : 's'}
-        </p>
-      </div>
+    <>
+      <p className="admin-view-subtitle">
+        {members.length} membro{members.length === 1 ? '' : 's'} encontrado{members.length === 1 ? '' : 's'}
+      </p>
 
       <div className="ekoz-card admin-toolbar">
         <div className="admin-search-wrapper">
@@ -170,6 +161,6 @@ export const AdminMembersView: React.FC = () => {
           </table>
         )}
       </div>
-    </div>
+    </>
   );
 };

@@ -95,4 +95,50 @@ export class AdminController {
       sendServerError(res, error, 'Erro ao atualizar status do membro');
     }
   }
+
+  public static async listSubscriptions(req: Request, res: Response): Promise<void> {
+    try {
+      const { status } = req.query as { status?: string };
+
+      const subscriptions = await prisma.subscription.findMany({
+        where: status ? { status } : {},
+        select: {
+          id: true,
+          plan: true,
+          status: true,
+          amount: true,
+          paymentMethod: true,
+          caktoOrderId: true,
+          expiresAt: true,
+          createdAt: true,
+          user: { select: { id: true, name: true, email: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      res.json({ subscriptions });
+    } catch (error: any) {
+      sendServerError(res, error, 'Erro ao listar assinaturas');
+    }
+  }
+
+  public static async revokeSubscription(req: Request, res: Response): Promise<void> {
+    try {
+      const subscriptionId = req.params.subscriptionId as string;
+
+      const subscription = await prisma.subscription.update({
+        where: { id: subscriptionId },
+        data: { status: 'CANCELLED' },
+        select: {
+          id: true,
+          status: true,
+          user: { select: { id: true, name: true, email: true } },
+        },
+      });
+
+      res.json({ subscription });
+    } catch (error: any) {
+      sendServerError(res, error, 'Erro ao revogar assinatura');
+    }
+  }
 }

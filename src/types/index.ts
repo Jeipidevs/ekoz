@@ -25,6 +25,18 @@ export interface AdminMemberSubscription {
   expiresAt: string | null;
 }
 
+export interface AdminSubscription {
+  id: string;
+  plan: string;
+  status: string;
+  amount: number;
+  paymentMethod: string | null;
+  caktoOrderId: string | null;
+  expiresAt: string | null;
+  createdAt: string;
+  user: { id: string; name: string; email: string };
+}
+
 export interface AdminMember {
   id: string;
   email: string;

@@ -11,4 +11,7 @@ router.get('/users', AdminController.listUsers);
 router.patch('/users/:userId/role', AdminController.updateRole);
 router.patch('/users/:userId/active', AdminController.updateActive);
 
+router.get('/subscriptions', AdminController.listSubscriptions);
+router.patch('/subscriptions/:subscriptionId/revoke', AdminController.revokeSubscription);
+
 export default router;

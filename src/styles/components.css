@@ -3530,4 +3530,28 @@
   width: auto;
 }
 
+.admin-section-tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.admin-section-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.admin-section-tab.active {
+  color: var(--gold-light);
+  border-color: rgba(203, 165, 72, 0.5);
+  background: rgba(203, 165, 72, 0.08);
+}
+
 

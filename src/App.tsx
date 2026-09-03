@@ -14,7 +14,7 @@ import { WhatsAppPushModal } from './components/notifications/WhatsAppPushModal'
 import { CaktoCheckoutModal } from './components/checkout/CaktoCheckoutModal';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { LoginScreen } from './components/auth/LoginScreen';
-import { AdminMembersView } from './components/admin/AdminMembersView';
+import { AdminView } from './components/admin/AdminView';
 import { api } from './services/api';
 import { User } from './types';
 
@@ -36,7 +36,7 @@ const AppContent: React.FC = () => {
             {activeTab === 'events' && <EventsView />}
             {activeTab === 'experiences' && <ExperiencesView />}
             {activeTab === 'videocall' && <VideoCallRoom />}
-            {activeTab === 'admin' && <AdminMembersView />}
+            {activeTab === 'admin' && <AdminView />}
           </div>
         </main>
       </div>
