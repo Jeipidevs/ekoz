@@ -14,26 +14,43 @@ import {
 } from 'lucide-react';
 
 export const ExperiencesView: React.FC = () => {
-  const { experiences, triggerToast } = useEkoz();
+  const { experiences, user, applyForExperience } = useEkoz();
   const [selectedExp, setSelectedExp] = useState<ExperienceItem | null>(null);
   const [interestSubmitted, setInterestSubmitted] = useState(false);
+  const [whatsapp, setWhatsapp] = useState('');
+  const [motivation, setMotivation] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleApplyInterest = (exp: ExperienceItem) => {
     setSelectedExp(exp);
     setInterestSubmitted(false);
+    setSubmitError(null);
+    setWhatsapp(user.whatsapp || '');
+    setMotivation('');
   };
 
-  const handleConfirmApplication = (e: React.FormEvent) => {
+  const handleConfirmApplication = async (e: React.FormEvent) => {
     e.preventDefault();
-    setInterestSubmitted(true);
-    triggerToast({
-      title: 'Interesse Registrado!',
-      message: `A curadoria VIP da Ekoz entrará em contato para alinhar os detalhes de ${selectedExp?.title}.`,
-      type: 'success',
-    });
-    setTimeout(() => {
-      setSelectedExp(null);
-    }, 2000);
+    if (!selectedExp) return;
+    setSubmitting(true);
+    setSubmitError(null);
+
+    const notes = [
+      whatsapp ? `WhatsApp de contato: ${whatsapp}` : null,
+      motivation || null,
+    ]
+      .filter(Boolean)
+      .join('\n\n');
+
+    try {
+      await applyForExperience(selectedExp.id, notes || undefined);
+      setInterestSubmitted(true);
+    } catch (err: any) {
+      setSubmitError(err.message || 'Não foi possível enviar sua candidatura agora. Tente novamente.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -168,9 +185,10 @@ export const ExperiencesView: React.FC = () => {
                   <label className="form-label">Seu Nome Completo</label>
                   <input
                     type="text"
-                    required
-                    defaultValue="Ezekiel Dall'Bello"
+                    disabled
+                    value={user.name}
                     className="ekoz-input"
+                    title="Identidade da sua conta Ekoz"
                   />
                 </div>
 
@@ -179,7 +197,9 @@ export const ExperiencesView: React.FC = () => {
                   <input
                     type="text"
                     required
-                    defaultValue="+55 55 99999-8888"
+                    value={whatsapp}
+                    onChange={(e) => setWhatsapp(e.target.value)}
+                    placeholder="+55 51 99999-9999"
                     className="ekoz-input"
                   />
                 </div>
@@ -188,10 +208,14 @@ export const ExperiencesView: React.FC = () => {
                   <label className="form-label">Por que você deseja viver essa experiência?</label>
                   <textarea
                     rows={3}
+                    value={motivation}
+                    onChange={(e) => setMotivation(e.target.value)}
                     placeholder="Conte brevemente sobre seus objetivos com a expedição..."
                     className="ekoz-textarea"
                   />
                 </div>
+
+                {submitError && <div className="login-screen-error">{submitError}</div>}
 
                 <div className="modal-footer-row mt-3">
                   <button
@@ -201,9 +225,9 @@ export const ExperiencesView: React.FC = () => {
                   >
                     Cancelar
                   </button>
-                  <button type="submit" className="btn btn-gold">
+                  <button type="submit" className="btn btn-gold" disabled={submitting}>
                     <Send size={15} />
-                    <span>Enviar Solicitação de Reserva</span>
+                    <span>{submitting ? 'Enviando...' : 'Enviar Solicitação de Reserva'}</span>
                   </button>
                 </div>
               </form>

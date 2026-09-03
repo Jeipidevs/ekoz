@@ -364,9 +364,7 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
 
   // Action: Apply for Experience
   const applyForExperience = async (experienceId: string, notes?: string) => {
-    try {
-      await api.applyForExperience(experienceId, notes);
-    } catch {}
+    await api.applyForExperience(experienceId, notes);
 
     try {
       confetti({
