@@ -3,7 +3,6 @@ import { useEkoz } from '../../context/EkozContext';
 import {
   Bell,
   MessageSquare,
-  Crown,
   Search,
   Sparkles,
   Smartphone,
@@ -17,21 +16,17 @@ export const Navbar: React.FC = () => {
     chatMessages,
     notifications,
     setWhatsappPushOpen,
-    setCheckoutOpen,
     logout,
   } = useEkoz();
 
   const [showNotifications, setShowNotifications] = useState(false);
   const unreadNotifications = notifications.filter((n) => !n.read).length;
 
-  const handleOpenUpgrade = () => setCheckoutOpen(true);
-
   return (
     <header className="navbar-container">
       <div className="navbar-left">
         <div className="navbar-brand">
           <img src="/logo-ekoz-wordmark.png" alt="Ekoz" className="navbar-logo-img" />
-          <span className="navbar-subtitle">Ecosystem</span>
         </div>
 
         <div className="navbar-search-wrapper">
@@ -54,12 +49,6 @@ export const Navbar: React.FC = () => {
           <Smartphone size={16} />
           <span className="hide-mobile">WhatsApp Push</span>
           <span className="status-dot"></span>
-        </button>
-
-        {/* Upgrade / Black Access CTA */}
-        <button onClick={handleOpenUpgrade} className="btn btn-gold btn-sm btn-upgrade" title="Acesso Ekoz Black">
-          <Crown size={15} />
-          <span className="hide-mobile">Ekoz Black</span>
         </button>
 
         {/* Direct Messages */}

@@ -3,8 +3,9 @@
 export const CAKTO_CHECKOUT = {
   annual: {
     label: 'Acesso Anual',
-    price: 'R$ 6.000',
-    period: '/ano (em até 12x no cartão)',
+    price: '12x de R$ 597',
+    period: 'no cartão',
+    cashNote: 'Pague à vista: tenha até 50% de desconto e ganhe 6 mil reais em bônus.',
     url: 'https://pay.cakto.com.br/m77xw7k',
   },
   monthly: {

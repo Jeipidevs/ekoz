@@ -2874,6 +2874,59 @@
   margin-top: 0.15rem;
 }
 
+.login-screen-card-wide {
+  max-width: 640px;
+}
+
+.checkout-plan-featured {
+  border-color: #4ADE80;
+  box-shadow: 0 0 0 1px #4ADE80, 0 0 24px rgba(74, 222, 128, 0.2);
+  position: relative;
+}
+
+.checkout-plan-badge {
+  position: absolute;
+  top: -11px;
+  right: 14px;
+  background: #4ADE80;
+  color: #06210F;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+}
+
+.plan-price-row-highlight {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.plan-price-highlight {
+  font-size: 2rem;
+  color: #4ADE80;
+  text-shadow: 0 0 18px rgba(74, 222, 128, 0.35);
+}
+
+.checkout-cash-offer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  background: rgba(74, 222, 128, 0.08);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  color: var(--color-concrete-200);
+}
+
+.checkout-cash-offer-tag {
+  font-weight: 700;
+  color: #4ADE80;
+  font-size: 0.7rem;
+}
+
 .checkout-guarantee-row {
   display: flex;
   align-items: center;
@@ -3342,6 +3395,7 @@
   border: 1px solid var(--border-color);
   border-radius: 14px;
   padding: 2rem;
+  transition: max-width var(--transition-fast, 0.2s ease);
 }
 
 .login-screen-brand {
