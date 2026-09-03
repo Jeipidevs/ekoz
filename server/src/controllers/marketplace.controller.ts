@@ -104,7 +104,7 @@ export class MarketplaceController {
           description: description || '',
           founderName: founder,
           founderRole: founderRole || 'Fundador(a)',
-          avatar: avatar || '/ezekiel.jpg',
+          avatar: avatar || '/default-avatar.svg',
           coverImage: coverImage || null,
           tags: JSON.stringify(tags || []),
           whatsapp,

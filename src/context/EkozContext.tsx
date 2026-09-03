@@ -156,7 +156,7 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
         id: msg.id,
         senderId: msg.senderId,
         senderName: msg.sender?.name || 'Membro',
-        senderAvatar: msg.sender?.avatar || '/ezekiel.jpg',
+        senderAvatar: msg.sender?.avatar || '/default-avatar.svg',
         text: msg.text,
         timestamp: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         isMe: false,

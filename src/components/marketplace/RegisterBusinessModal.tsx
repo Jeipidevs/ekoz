@@ -41,7 +41,7 @@ export const RegisterBusinessModal: React.FC<RegisterBusinessModalProps> = ({ on
       founder: user.name,
       founderRole: user.role === 'CEO' ? 'CEO & Founder' : 'Fundador & Diretor',
       avatar: user.avatar,
-      coverImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop&q=80',
+      coverImage: undefined,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
       whatsapp: whatsapp.replace(/\D/g, ''),
       website: website.trim() || undefined,
