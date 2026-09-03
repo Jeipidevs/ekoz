@@ -12,7 +12,6 @@ import {
   Activity,
   Scale,
   Layers,
-  Sparkles,
 } from 'lucide-react';
 
 export const MarketplaceView: React.FC = () => {

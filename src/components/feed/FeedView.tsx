@@ -5,10 +5,8 @@ import { PostCard } from './PostCard';
 import { ACADEMY_ENABLED } from '../../config/features';
 import {
   Sparkles,
-  Shield,
   Calendar,
   ArrowRight,
-  TrendingUp,
   Award,
   Users,
   Compass,

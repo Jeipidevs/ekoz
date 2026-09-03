@@ -199,6 +199,13 @@
   flex-wrap: wrap;
 }
 
+.lazy-view-loading {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--color-concrete-400);
+  font-size: 0.9rem;
+}
+
 .navbar-right {
   display: flex;
   align-items: center;

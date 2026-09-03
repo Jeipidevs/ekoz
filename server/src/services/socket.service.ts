@@ -17,8 +17,11 @@ export class SocketService {
   public static initialize(httpServer: HttpServer): SocketIOServer {
     this.io = new SocketIOServer(httpServer, {
       cors: {
-        origin: '*', // Allow all origins for dev and prod
+        // Restrito às mesmas origens permitidas na API REST (config.corsOrigins),
+        // em vez de '*'. Evita que qualquer site abra socket autenticado.
+        origin: config.corsOrigins,
         methods: ['GET', 'POST'],
+        credentials: true,
       },
     });
 

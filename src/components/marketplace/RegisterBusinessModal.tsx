@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useEkoz } from '../../context/EkozContext';
-import { ThematicCore } from '../../types';
-import { X, Building2, Store, Smartphone, Globe, MapPin, Sparkles } from 'lucide-react';
+import { X, Sparkles } from 'lucide-react';
 
 interface RegisterBusinessModalProps {
   onClose: () => void;

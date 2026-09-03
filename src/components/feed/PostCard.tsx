@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   Send,
   MessageCircle,
-  Briefcase,
 } from 'lucide-react';
 
 interface PostCardProps {

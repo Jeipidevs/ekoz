@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   Send,
   ArrowRight,
-  ShieldCheck,
   X,
 } from 'lucide-react';
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useEkoz } from '../../context/EkozContext';
 import { Post } from '../../types';
-import { Send, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { Send, Image as ImageIcon } from 'lucide-react';
 
 export const CreatePostCard: React.FC = () => {
   const { user, addPost } = useEkoz();

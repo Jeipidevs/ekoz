@@ -1,24 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { EkozProvider, useEkoz } from './context/EkozContext';
 import { Navbar } from './components/layout/Navbar';
 import { Sidebar } from './components/layout/Sidebar';
 import { ToastNotification } from './components/layout/ToastNotification';
 import { FeedView } from './components/feed/FeedView';
-import { AcademyView } from './components/academy/AcademyView';
 import { MarketplaceView } from './components/marketplace/MarketplaceView';
 import { EventsView } from './components/events/EventsView';
 import { ExperiencesView } from './components/experiences/ExperiencesView';
-import { VideoCallRoom } from './components/videocall/VideoCallRoom';
 import { ChatDrawer } from './components/chat/ChatDrawer';
 import { WhatsAppPushModal } from './components/notifications/WhatsAppPushModal';
 import { CaktoCheckoutModal } from './components/checkout/CaktoCheckoutModal';
 import { EditProfileModal } from './components/profile/EditProfileModal';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { LoginScreen } from './components/auth/LoginScreen';
-import { AdminView } from './components/admin/AdminView';
 import { api } from './services/api';
 import { User } from './types';
 import { ACADEMY_ENABLED } from './config/features';
+
+// Views pesadas ou pouco usadas ficam em chunks separados, carregados só
+// quando abertas — corta o bundle inicial (o VideoCallRoom puxa o LiveKit
+// inteiro; o AdminView só interessa a staff; a Academy está em stand-by).
+const VideoCallRoom = lazy(() =>
+  import('./components/videocall/VideoCallRoom').then((m) => ({ default: m.VideoCallRoom })),
+);
+const AdminView = lazy(() =>
+  import('./components/admin/AdminView').then((m) => ({ default: m.AdminView })),
+);
+const AcademyView = lazy(() =>
+  import('./components/academy/AcademyView').then((m) => ({ default: m.AcademyView })),
+);
 
 const AppContent: React.FC = () => {
   const { activeTab } = useEkoz();
@@ -32,13 +42,15 @@ const AppContent: React.FC = () => {
 
         <main className="main-content">
           <div className="page-wrapper">
-            {activeTab === 'feed' && <FeedView />}
-            {ACADEMY_ENABLED && activeTab === 'academy' && <AcademyView />}
-            {activeTab === 'marketplace' && <MarketplaceView />}
-            {activeTab === 'events' && <EventsView />}
-            {activeTab === 'experiences' && <ExperiencesView />}
-            {activeTab === 'videocall' && <VideoCallRoom />}
-            {activeTab === 'admin' && <AdminView />}
+            <Suspense fallback={<div className="lazy-view-loading">Carregando...</div>}>
+              {activeTab === 'feed' && <FeedView />}
+              {ACADEMY_ENABLED && activeTab === 'academy' && <AcademyView />}
+              {activeTab === 'marketplace' && <MarketplaceView />}
+              {activeTab === 'events' && <EventsView />}
+              {activeTab === 'experiences' && <ExperiencesView />}
+              {activeTab === 'videocall' && <VideoCallRoom />}
+              {activeTab === 'admin' && <AdminView />}
+            </Suspense>
           </div>
         </main>
       </div>

@@ -8,7 +8,6 @@ import {
   Download,
   FileText,
   MessageSquare,
-  Sparkles,
   ChevronRight,
   BookOpen,
 } from 'lucide-react';
@@ -201,7 +200,7 @@ export const LessonPlayerModal: React.FC<LessonPlayerModalProps> = ({ course, on
             </div>
 
             <div className="playlist-modules-list">
-              {course.modules.map((module, mIdx) => (
+              {course.modules.map((module) => (
                 <div key={module.id} className="module-group">
                   <div className="module-title-bar">
                     <span>{module.title}</span>

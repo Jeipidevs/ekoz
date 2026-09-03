@@ -17,7 +17,7 @@ model User {
   active       Boolean  @default(true)
   headline     String   @default("")
   company      String   @default("")
-  avatar       String   @default("/ezekiel.jpg")
+  avatar       String   @default("/default-avatar.svg")
   bio          String   @default("")
   verified     Boolean  @default(false)
   skills       String   @default("[]") // JSON string of string[]

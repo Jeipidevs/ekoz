@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
 import { useEkoz } from '../../context/EkozContext';
-import { EventItem } from '../../types';
 import {
   Calendar,
   MapPin,
   Clock,
   CheckCircle2,
   Users,
-  Sparkles,
   Ticket,
-  ExternalLink,
 } from 'lucide-react';
 
 export const EventsView: React.FC = () => {
