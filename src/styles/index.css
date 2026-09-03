@@ -21,6 +21,17 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  /* Palavras/URLs longas coladas em posts, bios e chat nunca esticam o
+     layout além da viewport (rede de segurança global anti-overflow). */
+  overflow-wrap: break-word;
+}
+
+/* Nenhuma mídia (foto de post, capa de negócio, avatar enviado pelo usuário)
+   pode ultrapassar a largura do seu container — vale pra qualquer tela. */
+img,
+video,
+canvas {
+  max-width: 100%;
 }
 
 /* Custom Scrollbar */
