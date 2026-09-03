@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEkoz } from '../../context/EkozContext';
 import { ThematicCore } from '../../types';
 import { X, Building2, Store, Smartphone, Globe, MapPin, Sparkles } from 'lucide-react';
@@ -11,19 +11,27 @@ export const RegisterBusinessModal: React.FC<RegisterBusinessModalProps> = ({ on
   const { addBusiness, thematicCores, user } = useEkoz();
 
   const [name, setName] = useState('');
-  const [coreId, setCoreId] = useState('ti-ia');
+  const [coreId, setCoreId] = useState('');
   const [headline, setHeadline] = useState('');
   const [description, setDescription] = useState('');
-  const [whatsapp, setWhatsapp] = useState(user.whatsapp || '5555999998888');
+  const [whatsapp, setWhatsapp] = useState(user.whatsapp || '');
   const [website, setWebsite] = useState('');
   const [location, setLocation] = useState(user.location);
   const [tags, setTags] = useState('');
 
   const validCores = thematicCores.filter((c) => c.id !== 'all');
 
+  // Seleciona o primeiro núcleo real assim que a lista carrega — o valor
+  // inicial não pode ser um id fixo, já que os núcleos vêm do banco (admin).
+  useEffect(() => {
+    if (!coreId && validCores.length > 0) {
+      setCoreId(validCores[0].id);
+    }
+  }, [validCores, coreId]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !headline.trim()) return;
+    if (!name.trim() || !headline.trim() || !coreId) return;
 
     addBusiness({
       name: name.trim(),
@@ -81,7 +89,10 @@ export const RegisterBusinessModal: React.FC<RegisterBusinessModalProps> = ({ on
                 value={coreId}
                 onChange={(e) => setCoreId(e.target.value)}
                 className="ekoz-select"
+                required
+                disabled={validCores.length === 0}
               >
+                {validCores.length === 0 && <option value="">Nenhum núcleo cadastrado ainda</option>}
                 {validCores.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
