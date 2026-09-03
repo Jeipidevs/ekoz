@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export const FeedView: React.FC = () => {
-  const { posts, setActiveTab, openChatWith, user, events, members } = useEkoz();
+  const { posts, setActiveTab, openChatWith, user, events, members, thematicCores } = useEkoz();
   const [selectedFilter, setSelectedFilter] = useState<string>('Todos');
 
   const filterTabs = [
@@ -66,7 +66,7 @@ export const FeedView: React.FC = () => {
                 <span className="metric-lbl">Curadoria B2B</span>
               </div>
               <div className="hero-metric-item">
-                <span className="metric-val">5</span>
+                <span className="metric-val">{thematicCores.length || '—'}</span>
                 <span className="metric-lbl">Núcleos Setoriais</span>
               </div>
               <div className="hero-metric-item">

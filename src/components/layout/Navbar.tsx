@@ -12,6 +12,8 @@ import {
 export const Navbar: React.FC = () => {
   const {
     user,
+    members,
+    openChatWith,
     setChatOpen,
     chatMessages,
     notifications,
@@ -20,7 +22,28 @@ export const Navbar: React.FC = () => {
   } = useEkoz();
 
   const [showNotifications, setShowNotifications] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
   const unreadNotifications = notifications.filter((n) => !n.read).length;
+
+  const query = searchQuery.trim().toLowerCase();
+  const searchResults =
+    query.length >= 2
+      ? members
+          .filter(
+            (m) =>
+              m.id !== user.id &&
+              (m.name.toLowerCase().includes(query) ||
+                m.company?.toLowerCase().includes(query) ||
+                m.headline?.toLowerCase().includes(query)),
+          )
+          .slice(0, 6)
+      : [];
+
+  const handleSelectMember = (member: (typeof members)[number]) => {
+    setSearchQuery('');
+    openChatWith(member);
+  };
 
   return (
     <header className="navbar-container">
@@ -33,9 +56,35 @@ export const Navbar: React.FC = () => {
           <Search size={16} className="search-icon" />
           <input
             type="text"
-            placeholder="Buscar membros, núcleos, masterclasses..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar membros por nome, empresa ou cargo..."
             className="navbar-search-input"
           />
+
+          {query.length >= 2 && (
+            <div className="navbar-search-results">
+              {searchResults.length > 0 ? (
+                searchResults.map((member) => (
+                  <button
+                    key={member.id}
+                    onClick={() => handleSelectMember(member)}
+                    className="navbar-search-result-item"
+                  >
+                    <img src={member.avatar} alt={member.name} className="search-result-avatar" />
+                    <div className="search-result-text">
+                      <span className="search-result-name">{member.name}</span>
+                      <span className="search-result-meta">
+                        {member.headline || member.company}
+                      </span>
+                    </div>
+                  </button>
+                ))
+              ) : (
+                <div className="navbar-search-empty">Nenhum membro encontrado</div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

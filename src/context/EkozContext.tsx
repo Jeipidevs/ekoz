@@ -205,52 +205,64 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
 
   // Action: Like Post
   const toggleLikePost = async (postId: string) => {
-    setPosts((prev) =>
-      prev.map((p) => {
-        if (p.id === postId) {
-          const userLiked = !p.userLiked;
-          return {
-            ...p,
-            userLiked,
-            likesCount: userLiked ? p.likesCount + 1 : Math.max(0, p.likesCount - 1),
-          };
-        }
-        return p;
-      })
-    );
+    const applyToggle = (p: Post): Post => {
+      const userLiked = !p.userLiked;
+      return {
+        ...p,
+        userLiked,
+        likesCount: userLiked ? p.likesCount + 1 : Math.max(0, p.likesCount - 1),
+      };
+    };
+
+    // Atualização otimista
+    setPosts((prev) => prev.map((p) => (p.id === postId ? applyToggle(p) : p)));
 
     try {
       await api.toggleLikePost(postId);
-    } catch {
-      // offline silent fallback
+    } catch (err: any) {
+      // Reverte a atualização otimista e avisa o usuário
+      setPosts((prev) => prev.map((p) => (p.id === postId ? applyToggle(p) : p)));
+      triggerToast({
+        title: 'Não foi possível registrar sua curtida',
+        message: err.message || 'Verifique sua conexão e tente novamente.',
+        type: 'info',
+      });
     }
   };
 
   // Action: Add Comment
   const addComment = async (postId: string, content: string) => {
+    const tempId = `c-${Date.now()}`;
     const tempComment = {
-      id: `c-${Date.now()}`,
+      id: tempId,
       author: user,
       content,
       timestamp: 'Agora mesmo',
     };
 
+    // Inserção otimista
     setPosts((prev) =>
-      prev.map((p) => {
-        if (p.id === postId) {
-          return {
-            ...p,
-            comments: [...p.comments, tempComment],
-          };
-        }
-        return p;
-      })
+      prev.map((p) =>
+        p.id === postId ? { ...p, comments: [...p.comments, tempComment] } : p
+      )
     );
 
     try {
       await api.addComment(postId, content);
-    } catch {
-      // offline silent fallback
+    } catch (err: any) {
+      // Remove o comentário otimista que não chegou a ser salvo e avisa o usuário
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === postId
+            ? { ...p, comments: p.comments.filter((c) => c.id !== tempId) }
+            : p
+        )
+      );
+      triggerToast({
+        title: 'Comentário não enviado',
+        message: err.message || 'Verifique sua conexão e tente novamente.',
+        type: 'info',
+      });
     }
   };
 
