@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useEkoz } from '../../context/EkozContext';
 import { CreatePostCard } from './CreatePostCard';
 import { PostCard } from './PostCard';
-import { membersList } from '../../data/mockData';
 import { ACADEMY_ENABLED } from '../../config/features';
 import {
   Sparkles,
@@ -17,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export const FeedView: React.FC = () => {
-  const { posts, setActiveTab, openChatWith, user, events } = useEkoz();
+  const { posts, setActiveTab, openChatWith, user, events, members } = useEkoz();
   const [selectedFilter, setSelectedFilter] = useState<string>('Todos');
 
   const filterTabs = [
@@ -195,7 +194,7 @@ export const FeedView: React.FC = () => {
           </div>
 
           <div className="members-mini-list">
-            {membersList
+            {members
               .filter((m) => m.id !== user.id)
               .slice(0, 4)
               .map((member) => (
@@ -218,6 +217,11 @@ export const FeedView: React.FC = () => {
                   </button>
                 </div>
               ))}
+            {members.filter((m) => m.id !== user.id).length === 0 && (
+              <p className="text-muted" style={{ fontSize: '0.8rem' }}>
+                Ainda não há outros membros — em breve o ecossistema cresce.
+              </p>
+            )}
           </div>
 
           <button

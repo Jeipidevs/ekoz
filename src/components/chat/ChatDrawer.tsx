@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useEkoz } from '../../context/EkozContext';
-import { membersList } from '../../data/mockData';
 import {
   X,
   Send,
@@ -20,6 +19,7 @@ export const ChatDrawer: React.FC = () => {
     chatMessages,
     sendChatMessage,
     user,
+    members,
   } = useEkoz();
 
   const [inputMsg, setInputMsg] = useState('');
@@ -27,7 +27,8 @@ export const ChatDrawer: React.FC = () => {
 
   if (!chatOpen) return null;
 
-  const currentRecipient = chatRecipient || membersList[1];
+  const otherMembers = members.filter((m) => m.id !== user.id);
+  const currentRecipient = chatRecipient;
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,13 +38,27 @@ export const ChatDrawer: React.FC = () => {
   };
 
   const handleWhatsAppRedirect = () => {
-    if (currentRecipient.whatsapp) {
+    if (currentRecipient?.whatsapp) {
       window.open(
         `https://wa.me/${currentRecipient.whatsapp.replace(/\D/g, '')}`,
         '_blank'
       );
     }
   };
+
+  if (!currentRecipient) {
+    return (
+      <div className="chat-drawer-overlay">
+        <div className="chat-drawer-content chat-drawer-empty">
+          <button onClick={() => setChatOpen(false)} className="chat-close-btn" title="Fechar Chat">
+            <X size={20} />
+          </button>
+          <MessageCircle size={32} color="#A8B5AE" />
+          <p>Escolha um membro no Marketplace ou no Feed pra iniciar uma conversa.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="chat-drawer-overlay">
@@ -96,24 +111,27 @@ export const ChatDrawer: React.FC = () => {
         {showRecipientDropdown && (
           <div className="recipient-selector-menu">
             <span className="selector-title">Conversar com outro membro:</span>
-            {membersList
-              .filter((m) => m.id !== user.id)
-              .map((m) => (
-                <div
-                  key={m.id}
-                  onClick={() => {
-                    openChatWith(m);
-                    setShowRecipientDropdown(false);
-                  }}
-                  className={`selector-item ${m.id === currentRecipient.id ? 'active' : ''}`}
-                >
-                  <img src={m.avatar} alt={m.name} className="selector-avatar" />
-                  <div>
-                    <div className="selector-name">{m.name}</div>
-                    <div className="selector-sub">{m.company}</div>
-                  </div>
+            {otherMembers.map((m) => (
+              <div
+                key={m.id}
+                onClick={() => {
+                  openChatWith(m);
+                  setShowRecipientDropdown(false);
+                }}
+                className={`selector-item ${m.id === currentRecipient.id ? 'active' : ''}`}
+              >
+                <img src={m.avatar} alt={m.name} className="selector-avatar" />
+                <div>
+                  <div className="selector-name">{m.name}</div>
+                  <div className="selector-sub">{m.company}</div>
                 </div>
-              ))}
+              </div>
+            ))}
+            {otherMembers.length === 0 && (
+              <span className="selector-sub" style={{ padding: '0.5rem 0.75rem' }}>
+                Nenhum outro membro ainda.
+              </span>
+            )}
           </div>
         )}
 

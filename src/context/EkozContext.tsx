@@ -12,16 +12,6 @@ import {
   NotificationItem,
   ActiveTab,
 } from '../types';
-import {
-  initialPosts,
-  thematicCores as initialThematicCores,
-  marketplaceBusinesses as initialBusinesses,
-  coursesList as initialCourses,
-  eventsList as initialEvents,
-  experiencesList as initialExperiences,
-  initialNotifications,
-  membersList,
-} from '../data/mockData';
 import { api } from '../services/api';
 import { socketClient } from '../services/socket';
 import confetti from 'canvas-confetti';
@@ -34,6 +24,7 @@ interface ToastData {
 
 interface EkozContextType {
   user: User;
+  members: User[];
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
   posts: Post[];
@@ -79,62 +70,32 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
   const [user, setUser] = useState<User>(initialUser);
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('feed');
+  const [members, setMembers] = useState<User[]>([]);
 
   // Posts State
-  const [posts, setPosts] = useState<Post[]>(() => {
-    const saved = localStorage.getItem('ekoz_posts');
-    return saved ? JSON.parse(saved) : initialPosts;
-  });
+  const [posts, setPosts] = useState<Post[]>([]);
 
   // Marketplace State
-  const [thematicCores, setThematicCores] = useState<ThematicCore[]>(initialThematicCores);
+  const [thematicCores, setThematicCores] = useState<ThematicCore[]>([]);
   const [selectedCore, setSelectedCore] = useState<string>('all');
-  const [businesses, setBusinesses] = useState<MarketplaceBusiness[]>(() => {
-    const saved = localStorage.getItem('ekoz_businesses');
-    return saved ? JSON.parse(saved) : initialBusinesses;
-  });
+  const [businesses, setBusinesses] = useState<MarketplaceBusiness[]>([]);
 
   // Courses State
-  const [courses, setCourses] = useState<Course[]>(() => {
-    const saved = localStorage.getItem('ekoz_courses');
-    return saved ? JSON.parse(saved) : initialCourses;
-  });
+  const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
 
   // Events & Experiences
-  const [events, setEvents] = useState<EventItem[]>(() => {
-    const saved = localStorage.getItem('ekoz_events');
-    return saved ? JSON.parse(saved) : initialEvents;
-  });
-  const [experiences, setExperiences] = useState<ExperienceItem[]>(initialExperiences);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [experiences, setExperiences] = useState<ExperienceItem[]>([]);
 
   // Direct Messages & Chat
   const [chatOpen, setChatOpen] = useState<boolean>(false);
-  const [chatRecipient, setChatRecipient] = useState<User | null>(membersList[1]);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      id: 'm-1',
-      senderId: 'user-2',
-      senderName: 'Dra. Camila Vasconcellos',
-      senderAvatar: membersList[1].avatar,
-      text: 'Olá Ezekiel! Tudo excelente? Gostaria de alinhar nossa proposta para a holding patrimonial dos membros Ekoz.',
-      timestamp: '14:20',
-      isMe: false,
-    },
-    {
-      id: 'm-2',
-      senderId: 'user-ezekiel',
-      senderName: "Ezekiel Dall'Bello",
-      senderAvatar: '/ezekiel.jpg',
-      text: 'Perfeito, Camila! Vamos marcar uma videoconferência aqui mesmo na plataforma hoje às 17h. O que acha?',
-      timestamp: '14:25',
-      isMe: true,
-    },
-  ]);
+  const [chatRecipient, setChatRecipient] = useState<User | null>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   // Notifications & Checkout
-  const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [whatsappPushOpen, setWhatsappPushOpen] = useState<boolean>(false);
   const [checkoutOpen, setCheckoutOpen] = useState<boolean>(false);
   const [activeToast, setActiveToast] = useState<ToastData | null>(null);
@@ -148,57 +109,32 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
 
   const dismissToast = () => setActiveToast(null);
 
-  // Sync state with backend API on mount
+  // Sync state with backend API on mount — dado real, sem fallback pra
+  // conteúdo fake: lista vazia significa "ainda não há nada", não "usa o mock".
   useEffect(() => {
-    // Autenticação já foi validada pelo gate em App.tsx antes deste provider
-    // montar — aqui só carregamos os dados do restante do app.
-    const token = api.getToken();
     const loadBackendData = async () => {
-      try {
-        // Fetch Posts
-        const remotePosts = await api.listPosts();
-        if (remotePosts && remotePosts.length > 0) {
-          setPosts(remotePosts);
-          localStorage.setItem('ekoz_posts', JSON.stringify(remotePosts));
-        }
+      const [
+        remotePosts, remoteCores, remoteBiz, remoteCourses,
+        remoteEvents, remoteExp, remoteNotifs, remoteMembers,
+      ] = await Promise.all([
+        api.listPosts().catch(() => []),
+        api.listCores().catch(() => []),
+        api.listBusinesses().catch(() => []),
+        api.listCourses().catch(() => []),
+        api.listEvents().catch(() => []),
+        api.listExperiences().catch(() => []),
+        api.listNotifications().catch(() => []),
+        api.listMembers().catch(() => []),
+      ]);
 
-        // Fetch Cores & Businesses
-        const [remoteCores, remoteBiz] = await Promise.all([
-          api.listCores().catch(() => null),
-          api.listBusinesses().catch(() => null),
-        ]);
-        if (remoteCores && remoteCores.length > 0) setThematicCores(remoteCores);
-        if (remoteBiz && remoteBiz.length > 0) {
-          setBusinesses(remoteBiz);
-          localStorage.setItem('ekoz_businesses', JSON.stringify(remoteBiz));
-        }
-
-        // Fetch Courses
-        const remoteCourses = await api.listCourses().catch(() => null);
-        if (remoteCourses && remoteCourses.length > 0) {
-          setCourses(remoteCourses);
-          localStorage.setItem('ekoz_courses', JSON.stringify(remoteCourses));
-        }
-
-        // Fetch Events & Experiences
-        const [remoteEvents, remoteExp] = await Promise.all([
-          api.listEvents().catch(() => null),
-          api.listExperiences().catch(() => null),
-        ]);
-        if (remoteEvents && remoteEvents.length > 0) {
-          setEvents(remoteEvents);
-          localStorage.setItem('ekoz_events', JSON.stringify(remoteEvents));
-        }
-        if (remoteExp && remoteExp.length > 0) setExperiences(remoteExp);
-
-        // Fetch Notifications if authenticated
-        if (token) {
-          const remoteNotifs = await api.listNotifications().catch(() => null);
-          if (remoteNotifs && remoteNotifs.length > 0) setNotifications(remoteNotifs);
-        }
-      } catch (err) {
-        console.log('⚡ Backend syncing mode: working seamlessly with local state');
-      }
+      setPosts(remotePosts);
+      setThematicCores(remoteCores);
+      setBusinesses(remoteBiz);
+      setCourses(remoteCourses);
+      setEvents(remoteEvents);
+      setExperiences(remoteExp);
+      setNotifications(remoteNotifs);
+      setMembers(remoteMembers);
     };
 
     loadBackendData();
@@ -252,29 +188,18 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
     try {
       const createdPost = await api.createPost(content, category, mediaUrl);
       setPosts((prev) => [createdPost, ...prev.filter((p) => p.id !== createdPost.id)]);
-      localStorage.setItem('ekoz_posts', JSON.stringify([createdPost, ...posts]));
-    } catch {
-      // Local fallback
-      const newPost: Post = {
-        id: `post-${Date.now()}`,
-        author: user,
-        content,
-        category,
-        mediaUrl: mediaUrl || undefined,
-        timestamp: 'Agora mesmo',
-        likesCount: 0,
-        userLiked: false,
-        comments: [],
-      };
-      setPosts([newPost, ...posts]);
-      localStorage.setItem('ekoz_posts', JSON.stringify([newPost, ...posts]));
+      triggerToast({
+        title: 'Publicado na Timeline',
+        message: 'Sua mensagem foi compartilhada com todo o ecossistema Ekoz.',
+        type: 'success',
+      });
+    } catch (err: any) {
+      triggerToast({
+        title: 'Erro ao publicar',
+        message: err.message || 'Não foi possível publicar agora. Tente novamente.',
+        type: 'info',
+      });
     }
-
-    triggerToast({
-      title: 'Publicado na Timeline',
-      message: 'Sua mensagem foi compartilhada com todo o ecossistema Ekoz.',
-      type: 'success',
-    });
   };
 
   // Action: Like Post
@@ -333,32 +258,28 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
     try {
       const createdBiz = await api.registerBusiness(newBiz);
       setBusinesses([createdBiz, ...businesses]);
-      localStorage.setItem('ekoz_businesses', JSON.stringify([createdBiz, ...businesses]));
-    } catch {
-      const fallbackBiz: MarketplaceBusiness = {
-        ...newBiz,
-        id: `biz-${Date.now()}`,
-        verified: true,
-        featured: false,
-      };
-      setBusinesses([fallbackBiz, ...businesses]);
-      localStorage.setItem('ekoz_businesses', JSON.stringify([fallbackBiz, ...businesses]));
-    }
 
-    try {
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#DFC16E', '#CBA548', '#2E5643', '#FFFFFF'],
+      try {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#DFC16E', '#CBA548', '#2E5643', '#FFFFFF'],
+        });
+      } catch {}
+
+      triggerToast({
+        title: 'Negócio Cadastrado no Marketplace!',
+        message: `${newBiz.name} agora está visível para todos os membros Ekoz.`,
+        type: 'success',
       });
-    } catch {}
-
-    triggerToast({
-      title: 'Negócio Cadastrado no Marketplace!',
-      message: `${newBiz.name} agora está visível para todos os membros Ekoz.`,
-      type: 'success',
-    });
+    } catch (err: any) {
+      triggerToast({
+        title: 'Erro ao cadastrar negócio',
+        message: err.message || 'Não foi possível cadastrar agora. Tente novamente.',
+        type: 'info',
+      });
+    }
   };
 
   // Action: Mark Lesson Completed
@@ -467,20 +388,20 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
   const openChatWith = async (targetUser: User) => {
     setChatRecipient(targetUser);
     setChatOpen(true);
+    setChatMessages([]);
 
     try {
       const messages = await api.getMessages(targetUser.id);
-      if (messages && messages.length > 0) {
-        setChatMessages(messages);
-      }
+      setChatMessages(messages || []);
     } catch {
-      // keep simulated messages
+      setChatMessages([]);
     }
   };
 
-  // Action: Send chat message
+  // Action: Send chat message — a resposta real chega via socket
+  // ('chat:new_message', escutado no useEffect acima), não é simulada aqui.
   const sendChatMessage = (text: string) => {
-    if (!text.trim()) return;
+    if (!text.trim() || !chatRecipient) return;
     const msg: ChatMessage = {
       id: `m-${Date.now()}`,
       senderId: user.id,
@@ -491,29 +412,7 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
       isMe: true,
     };
     setChatMessages((prev) => [...prev, msg]);
-
-    if (chatRecipient) {
-      socketClient.sendMessage(chatRecipient.id, text);
-
-      // Simulated auto-reply
-      setTimeout(() => {
-        const reply: ChatMessage = {
-          id: `m-reply-${Date.now()}`,
-          senderId: chatRecipient.id,
-          senderName: chatRecipient.name,
-          senderAvatar: chatRecipient.avatar,
-          text: `Excelente ponto, ${user.name.split(' ')[0]}! Mensagem recebida. Vamos avançar com força total! 🚀`,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          isMe: false,
-        };
-        setChatMessages((prev) => [...prev, reply]);
-        triggerToast({
-          title: `WhatsApp / Chat: Mensagem de ${chatRecipient.name}`,
-          message: reply.text,
-          type: 'whatsapp',
-        });
-      }, 2500);
-    }
+    socketClient.sendMessage(chatRecipient.id, text);
   };
 
   // Action: Logout — limpa sessão e recarrega pra voltar ao gate de login em App.tsx
@@ -537,6 +436,7 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
     <EkozContext.Provider
       value={{
         user,
+        members,
         activeTab,
         setActiveTab,
         posts,

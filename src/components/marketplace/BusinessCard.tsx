@@ -1,7 +1,6 @@
 import React from 'react';
 import { MarketplaceBusiness } from '../../types';
 import { useEkoz } from '../../context/EkozContext';
-import { membersList } from '../../data/mockData';
 import {
   MessageCircle,
   ExternalLink,
@@ -15,9 +14,9 @@ interface BusinessCardProps {
 }
 
 export const BusinessCard: React.FC<BusinessCardProps> = ({ business }) => {
-  const { openChatWith } = useEkoz();
+  const { openChatWith, members } = useEkoz();
 
-  const founderUser = membersList.find((m) => m.name === business.founder);
+  const founderUser = members.find((m) => m.name === business.founder);
 
   const handleWhatsAppClick = () => {
     const message = encodeURIComponent(
