@@ -1640,6 +1640,16 @@
   max-width: 480px;
 }
 
+/* Abre espaço pro ícone de lupa (posicionado absoluto à esquerda) não
+   sobrepor o placeholder — mesmo padrão já usado no admin e na navbar. */
+.marketplace-search-wrap .ekoz-input {
+  padding-left: 2.6rem;
+}
+
+.marketplace-search-wrap .search-icon {
+  left: 0.95rem;
+}
+
 .results-count-text {
   font-size: 0.85rem;
   color: var(--color-concrete-300);
