@@ -9,6 +9,7 @@ import {
   Video,
 } from 'lucide-react';
 import { ActiveTab } from '../../types';
+import { ACADEMY_ENABLED } from '../../config/features';
 
 export const MobileBottomNav: React.FC = () => {
   const { activeTab, setActiveTab } = useEkoz();
@@ -19,11 +20,15 @@ export const MobileBottomNav: React.FC = () => {
       label: 'Feed',
       icon: <Layers size={20} />,
     },
-    {
-      id: 'academy',
-      label: 'Academy',
-      icon: <GraduationCap size={20} />,
-    },
+    ...(ACADEMY_ENABLED
+      ? [
+          {
+            id: 'academy' as ActiveTab,
+            label: 'Academy',
+            icon: <GraduationCap size={20} />,
+          },
+        ]
+      : []),
     {
       id: 'marketplace',
       label: 'Mercado',

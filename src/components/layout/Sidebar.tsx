@@ -12,6 +12,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { ActiveTab } from '../../types';
+import { ACADEMY_ENABLED } from '../../config/features';
 
 const STAFF_ROLES = ['CEO', 'Mentor', 'Admin'];
 
@@ -25,12 +26,16 @@ export const Sidebar: React.FC = () => {
       label: 'Feed Executivo',
       icon: <Layers size={19} />,
     },
-    {
-      id: 'academy',
-      label: 'Ekoz Academy',
-      icon: <GraduationCap size={19} />,
-      badge: 'Aulas',
-    },
+    ...(ACADEMY_ENABLED
+      ? [
+          {
+            id: 'academy' as ActiveTab,
+            label: 'Ekoz Academy',
+            icon: <GraduationCap size={19} />,
+            badge: 'Aulas',
+          },
+        ]
+      : []),
     {
       id: 'marketplace',
       label: 'Marketplace B2B',

@@ -3,6 +3,7 @@ import { useEkoz } from '../../context/EkozContext';
 import { CreatePostCard } from './CreatePostCard';
 import { PostCard } from './PostCard';
 import { membersList } from '../../data/mockData';
+import { ACADEMY_ENABLED } from '../../config/features';
 import {
   Sparkles,
   Shield,
@@ -129,15 +130,17 @@ export const FeedView: React.FC = () => {
               "O Homem Além da Beleza: nossa meta é elevar o padrão da sua mente, do seu corpo e do seu faturamento empresarial."
             </p>
 
-            <div className="ceo-card-actions">
-              <button
-                onClick={() => setActiveTab('academy')}
-                className="btn btn-gold btn-sm full-width"
-              >
-                <Sparkles size={14} />
-                <span>Ver Masterclasses do CEO</span>
-              </button>
-            </div>
+            {ACADEMY_ENABLED && (
+              <div className="ceo-card-actions">
+                <button
+                  onClick={() => setActiveTab('academy')}
+                  className="btn btn-gold btn-sm full-width"
+                >
+                  <Sparkles size={14} />
+                  <span>Ver Masterclasses do CEO</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

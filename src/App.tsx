@@ -17,6 +17,7 @@ import { LoginScreen } from './components/auth/LoginScreen';
 import { AdminView } from './components/admin/AdminView';
 import { api } from './services/api';
 import { User } from './types';
+import { ACADEMY_ENABLED } from './config/features';
 
 const AppContent: React.FC = () => {
   const { activeTab } = useEkoz();
@@ -31,7 +32,7 @@ const AppContent: React.FC = () => {
         <main className="main-content">
           <div className="page-wrapper">
             {activeTab === 'feed' && <FeedView />}
-            {activeTab === 'academy' && <AcademyView />}
+            {ACADEMY_ENABLED && activeTab === 'academy' && <AcademyView />}
             {activeTab === 'marketplace' && <MarketplaceView />}
             {activeTab === 'events' && <EventsView />}
             {activeTab === 'experiences' && <ExperiencesView />}
