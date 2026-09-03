@@ -12,6 +12,7 @@ import { VideoCallRoom } from './components/videocall/VideoCallRoom';
 import { ChatDrawer } from './components/chat/ChatDrawer';
 import { WhatsAppPushModal } from './components/notifications/WhatsAppPushModal';
 import { CaktoCheckoutModal } from './components/checkout/CaktoCheckoutModal';
+import { EditProfileModal } from './components/profile/EditProfileModal';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { LoginScreen } from './components/auth/LoginScreen';
 import { AdminView } from './components/admin/AdminView';
@@ -46,6 +47,7 @@ const AppContent: React.FC = () => {
       <ChatDrawer />
       <WhatsAppPushModal />
       <CaktoCheckoutModal />
+      <EditProfileModal />
       <ToastNotification />
       <MobileBottomNav />
     </div>

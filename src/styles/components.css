@@ -147,6 +147,52 @@
   text-align: center;
 }
 
+.edit-profile-modal {
+  max-width: 560px;
+}
+
+.edit-profile-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 0;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-moss);
+}
+
+.edit-profile-avatar-preview {
+  width: 58px;
+  height: 58px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  border: 2px solid var(--color-gold-500);
+  flex-shrink: 0;
+}
+
+.edit-profile-identity-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.edit-profile-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-gold-500);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.edit-profile-email {
+  color: var(--color-concrete-400);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .navbar-right {
   display: flex;
   align-items: center;

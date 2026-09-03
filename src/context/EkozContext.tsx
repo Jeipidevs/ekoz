@@ -57,6 +57,8 @@ interface EkozContextType {
   setWhatsappPushOpen: (open: boolean) => void;
   checkoutOpen: boolean;
   setCheckoutOpen: (open: boolean) => void;
+  profileOpen: boolean;
+  setProfileOpen: (open: boolean) => void;
   logout: () => void;
   notifications: NotificationItem[];
   markNotificationRead: (id: string) => Promise<void>;
@@ -99,6 +101,7 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [whatsappPushOpen, setWhatsappPushOpen] = useState<boolean>(false);
   const [checkoutOpen, setCheckoutOpen] = useState<boolean>(false);
+  const [profileOpen, setProfileOpen] = useState<boolean>(false);
   const [activeToast, setActiveToast] = useState<ToastData | null>(null);
 
   const triggerToast = (toast: ToastData) => {
@@ -480,6 +483,8 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
         setWhatsappPushOpen,
         checkoutOpen,
         setCheckoutOpen,
+        profileOpen,
+        setProfileOpen,
         logout,
         notifications,
         markNotificationRead,

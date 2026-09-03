@@ -18,7 +18,7 @@ export const Navbar: React.FC = () => {
     chatMessages,
     notifications,
     setWhatsappPushOpen,
-    logout,
+    setProfileOpen,
   } = useEkoz();
 
   const [showNotifications, setShowNotifications] = useState(false);
@@ -168,11 +168,9 @@ export const Navbar: React.FC = () => {
         {/* User Pill */}
         <div
           className="navbar-user-pill"
-          onClick={() => {
-            if (window.confirm('Sair da sua conta Ekoz?')) logout();
-          }}
+          onClick={() => setProfileOpen(true)}
           style={{ cursor: 'pointer' }}
-          title="Clique para sair da conta"
+          title="Ver e editar meu perfil"
         >
           <div className="user-avatar-wrap">
             <img src={user.avatar} alt={user.name} className="user-avatar-img" />
