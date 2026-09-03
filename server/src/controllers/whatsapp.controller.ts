@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { WhatsAppService } from '../services/whatsapp.service.js';
+import { NotificationService } from '../services/notification.service.js';
 import { prisma } from '../services/prisma.service.js';
 import { sendServerError } from '../middleware/error.middleware.js';
 
@@ -37,6 +38,14 @@ export class WhatsAppController {
 
       const results = [];
       for (const user of users) {
+        // Push nativo no celular + sino in-app (independe de ter WhatsApp).
+        await NotificationService.notify(user.id, {
+          type: type || 'announcement',
+          title,
+          description: body,
+          actionUrl,
+        });
+
         if (user.whatsapp) {
           const result = await WhatsAppService.sendNotification({
             toPhone: user.whatsapp,

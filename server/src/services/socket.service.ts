@@ -3,6 +3,7 @@ import { Server as SocketIOServer, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/index.js';
 import { prisma } from './prisma.service.js';
+import { PushService } from './push.service.js';
 
 interface AuthenticatedSocket extends Socket {
   userId?: string;
@@ -105,6 +106,18 @@ export class SocketService {
           this.io?.to(`user:${recipientId}`).emit('chat:new_message', message);
           socket.emit('chat:message_sent', message);
 
+          // Se o destinatário está offline, entrega um push nativo no celular
+          // dele — é justamente quando o push importa (app fechado).
+          if (!this.isOnline(recipientId)) {
+            const preview = text.length > 90 ? `${text.slice(0, 90)}…` : text;
+            void PushService.sendToUser(recipientId, {
+              title: `💬 ${message.sender?.name || 'Nova mensagem'}`,
+              body: preview,
+              url: '/',
+              tag: `chat-${senderId}`,
+            });
+          }
+
           console.log(`💬 Message sent from ${senderId} to ${recipientId}`);
         } catch (err) {
           console.error('❌ Error handling chat:send_message', err);
@@ -137,6 +150,12 @@ export class SocketService {
     });
 
     return this.io;
+  }
+
+  /** True se o usuário tem ao menos um socket conectado agora. */
+  public static isOnline(userId: string): boolean {
+    const set = this.userSockets.get(userId);
+    return !!set && set.size > 0;
   }
 
   public static emitNotification(userId: string, notification: any) {

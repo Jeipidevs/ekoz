@@ -41,4 +41,9 @@ export const config = {
   livekitApiKey: process.env.LIVEKIT_API_KEY || '',
   livekitApiSecret: process.env.LIVEKIT_API_SECRET || '',
   livekitWsUrl: process.env.LIVEKIT_WS_URL || '',
+  // Web Push (notificações nativas no celular). A chave privada é secreta e
+  // fica só no servidor; a pública é entregue ao frontend por endpoint.
+  vapidPublic: process.env.VAPID_PUBLIC || '',
+  vapidPrivate: process.env.VAPID_PRIVATE || '',
+  vapidSubject: process.env.VAPID_SUBJECT || 'mailto:contato@ekoz.com.br',
 };

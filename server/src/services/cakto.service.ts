@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { prisma } from './prisma.service.js';
 import { WhatsAppService } from './whatsapp.service.js';
+import { NotificationService } from './notification.service.js';
 import { config } from '../config/index.js';
 
 // Formato real dos eventos/payload da Cakto — ver https://docs.cakto.com.br/conceitos/webhooks
@@ -97,13 +98,10 @@ export class CaktoService {
       },
     });
 
-    await prisma.notification.create({
-      data: {
-        userId: user.id,
-        type: 'announcement',
-        title: 'Acesso Ekoz liberado!',
-        description: 'Seu pagamento foi confirmado e seu acesso ao ecossistema Ekoz já está ativo.',
-      },
+    await NotificationService.notify(user.id, {
+      type: 'announcement',
+      title: 'Acesso Ekoz liberado!',
+      description: 'Seu pagamento foi confirmado e seu acesso ao ecossistema Ekoz já está ativo.',
     });
 
     await CaktoService.notifyAccessGranted({ user, email, planName, phone: data.phone, temporaryPassword });
@@ -188,13 +186,10 @@ export class CaktoService {
       data: { status: 'CANCELLED' },
     });
 
-    await prisma.notification.create({
-      data: {
-        userId: user.id,
-        type: 'announcement',
-        title: 'Acesso Ekoz encerrado',
-        description: `Seu acesso foi encerrado (${event}). Entre em contato caso isso seja um engano.`,
-      },
+    await NotificationService.notify(user.id, {
+      type: 'announcement',
+      title: 'Acesso Ekoz encerrado',
+      description: `Seu acesso foi encerrado (${event}). Entre em contato caso isso seja um engano.`,
     });
 
     console.log(`🚫 Acesso revogado para ${email} (${event})`);

@@ -223,6 +223,25 @@ class ApiClient {
     });
   }
 
+  // --- Web Push (notificações nativas no celular) ---
+  public async getVapidPublicKey(): Promise<{ publicKey: string | null }> {
+    return this.request<{ publicKey: string | null }>('/push/vapid-public-key');
+  }
+
+  public async savePushSubscription(sub: PushSubscriptionJSON): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>('/push/subscribe', {
+      method: 'POST',
+      body: JSON.stringify(sub),
+    });
+  }
+
+  public async removePushSubscription(endpoint: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>('/push/unsubscribe', {
+      method: 'POST',
+      body: JSON.stringify({ endpoint }),
+    });
+  }
+
   // --- Admin: Membros ---
   public async adminListUsers(params?: { search?: string; role?: string; active?: boolean }): Promise<AdminMember[]> {
     const query = new URLSearchParams();

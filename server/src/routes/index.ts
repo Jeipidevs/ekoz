@@ -12,6 +12,7 @@ import caktoRoutes from './cakto.routes.js';
 import whatsappRoutes from './whatsapp.routes.js';
 import adminRoutes from './admin.routes.js';
 import videocallRoutes from './videocall.routes.js';
+import pushRoutes from './push.routes.js';
 
 const apiRouter = Router();
 
@@ -28,6 +29,7 @@ apiRouter.use('/cakto', caktoRoutes);
 apiRouter.use('/whatsapp', whatsappRoutes);
 apiRouter.use('/admin', adminRoutes);
 apiRouter.use('/videocall', videocallRoutes);
+apiRouter.use('/push', pushRoutes);
 
 apiRouter.get('/health', (_req, res) => {
   res.json({
