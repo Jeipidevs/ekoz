@@ -302,6 +302,11 @@ class ApiClient {
   public async adminDeletePost(postId: string): Promise<{ success: boolean }> {
     return this.request<{ success: boolean }>(`/posts/${postId}`, { method: 'DELETE' });
   }
+
+  // --- Videochamada (LiveKit) ---
+  public async getVideoCallToken(): Promise<{ token: string; url: string; room: string }> {
+    return this.request<{ token: string; url: string; room: string }>('/videocall/token');
+  }
 }
 
 export const api = new ApiClient();

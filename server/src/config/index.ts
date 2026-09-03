@@ -37,4 +37,8 @@ export const config = {
   evolutionApiKey: process.env.EVOLUTION_API_KEY || '',
   // Número que recebe alertas administrativos (ex: compra sem telefone no webhook)
   adminWhatsappNumber: process.env.ADMIN_WHATSAPP_NUMBER || '',
+  // LiveKit (videochamadas) — servidor self-hosted no EasyPanel
+  livekitApiKey: process.env.LIVEKIT_API_KEY || '',
+  livekitApiSecret: process.env.LIVEKIT_API_SECRET || '',
+  livekitWsUrl: process.env.LIVEKIT_WS_URL || '',
 };
