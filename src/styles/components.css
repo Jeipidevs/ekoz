@@ -147,6 +147,33 @@
   text-align: center;
 }
 
+/* Busca no mobile: botão de lupa no header + barra full-width abaixo dele.
+   No desktop o toggle some (a barra fica à esquerda no navbar). */
+.navbar-mobile-search-toggle {
+  display: none;
+}
+
+.navbar-mobile-search {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(10, 18, 14, 0.98);
+  border-bottom: 1px solid var(--border-moss);
+  padding: 0.6rem 0.75rem;
+  z-index: 99;
+}
+
+.navbar-mobile-search-inner {
+  position: relative;
+}
+
+@media (min-width: 769px) {
+  .navbar-mobile-search {
+    display: none;
+  }
+}
+
 .edit-profile-modal {
   max-width: 560px;
 }
@@ -204,6 +231,39 @@
   text-align: center;
   color: var(--color-concrete-400);
   font-size: 0.9rem;
+}
+
+/* Modal de confirmação on-brand */
+.confirm-dialog {
+  max-width: 440px;
+}
+
+.confirm-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: rgba(203, 165, 72, 0.14);
+  color: var(--color-gold-500);
+  flex-shrink: 0;
+}
+
+.confirm-icon.danger {
+  background: rgba(239, 68, 68, 0.14);
+  color: #f87171;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #fff;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #f05252, #c81e1e);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
 }
 
 .navbar-right {
@@ -3204,6 +3264,9 @@
   }
   .navbar-search-wrapper {
     display: none !important;
+  }
+  .navbar-mobile-search-toggle {
+    display: inline-flex;
   }
   .navbar-right {
     gap: 0.35rem;

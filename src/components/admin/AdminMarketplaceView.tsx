@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Plus, Trash2, X, ShieldCheck, Star } from 'lucide-react';
 import { api } from '../../services/api';
 import { ThematicCore, MarketplaceBusiness } from '../../types';
@@ -7,15 +7,14 @@ import { useEkoz } from '../../context/EkozContext';
 const emptyCoreForm = { name: '', slug: '', icon: 'Layers', description: '' };
 
 export const AdminMarketplaceView: React.FC = () => {
-  const { triggerToast } = useEkoz();
+  const { triggerToast, confirm } = useEkoz();
   const [cores, setCores] = useState<ThematicCore[]>([]);
   const [businesses, setBusinesses] = useState<MarketplaceBusiness[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCoreForm, setShowCoreForm] = useState(false);
   const [coreForm, setCoreForm] = useState(emptyCoreForm);
 
-  const load = async () => {
-    setLoading(true);
+  const load = useCallback(async () => {
     try {
       const [c, b] = await Promise.all([api.listCores(), api.listBusinesses()]);
       setCores(c);
@@ -25,9 +24,9 @@ export const AdminMarketplaceView: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [triggerToast]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   const handleCreateCore = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +42,13 @@ export const AdminMarketplaceView: React.FC = () => {
   };
 
   const handleDeleteCore = async (core: ThematicCore) => {
-    if (!window.confirm(`Remover o núcleo "${core.name}"? Isso também remove os negócios vinculados.`)) return;
+    const ok = await confirm({
+      title: 'Remover núcleo',
+      message: `Remover o núcleo "${core.name}"? Isso também remove os negócios vinculados a ele.`,
+      confirmLabel: 'Remover',
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await api.adminDeleteCore(core.id);
       triggerToast({ title: 'Núcleo removido', message: core.name, type: 'success' });
@@ -63,7 +68,13 @@ export const AdminMarketplaceView: React.FC = () => {
   };
 
   const handleDeleteBusiness = async (biz: MarketplaceBusiness) => {
-    if (!window.confirm(`Remover o negócio "${biz.name}"?`)) return;
+    const ok = await confirm({
+      title: 'Remover negócio',
+      message: `Remover o negócio "${biz.name}" do marketplace?`,
+      confirmLabel: 'Remover',
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await api.adminDeleteBusiness(biz.id);
       setBusinesses((prev) => prev.filter((b) => b.id !== biz.id));

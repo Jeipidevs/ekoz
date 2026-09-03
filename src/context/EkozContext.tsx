@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
+import { ConfirmDialog, ConfirmOptions } from '../components/layout/ConfirmDialog';
 import {
   User,
   Post,
@@ -59,6 +60,7 @@ interface EkozContextType {
   setCheckoutOpen: (open: boolean) => void;
   profileOpen: boolean;
   setProfileOpen: (open: boolean) => void;
+  confirm: (opts: ConfirmOptions) => Promise<boolean>;
   logout: () => void;
   notifications: NotificationItem[];
   markNotificationRead: (id: string) => Promise<void>;
@@ -102,14 +104,32 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
   const [whatsappPushOpen, setWhatsappPushOpen] = useState<boolean>(false);
   const [checkoutOpen, setCheckoutOpen] = useState<boolean>(false);
   const [profileOpen, setProfileOpen] = useState<boolean>(false);
+
+  // Confirmação on-brand (substitui window.confirm). confirm() devolve uma
+  // Promise que resolve quando o usuário escolhe no modal.
+  const [confirmData, setConfirmData] = useState<ConfirmOptions | null>(null);
+  const confirmResolver = useRef<((v: boolean) => void) | null>(null);
+  const confirm = useCallback(
+    (opts: ConfirmOptions) =>
+      new Promise<boolean>((resolve) => {
+        confirmResolver.current = resolve;
+        setConfirmData(opts);
+      }),
+    [],
+  );
+  const resolveConfirm = (result: boolean) => {
+    confirmResolver.current?.(result);
+    confirmResolver.current = null;
+    setConfirmData(null);
+  };
   const [activeToast, setActiveToast] = useState<ToastData | null>(null);
 
-  const triggerToast = (toast: ToastData) => {
+  const triggerToast = useCallback((toast: ToastData) => {
     setActiveToast(toast);
     setTimeout(() => {
       setActiveToast((curr) => (curr?.title === toast.title ? null : curr));
     }, 5500);
-  };
+  }, []);
 
   const dismissToast = () => setActiveToast(null);
 
@@ -185,7 +205,7 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
     return () => {
       // Keep connection alive across component life-cycle
     };
-  }, []);
+  }, [triggerToast]);
 
   // Action: Add Post
   const addPost = async (content: string, category: Post['category'], mediaUrl?: string) => {
@@ -485,6 +505,7 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
         setCheckoutOpen,
         profileOpen,
         setProfileOpen,
+        confirm,
         logout,
         notifications,
         markNotificationRead,
@@ -494,6 +515,7 @@ export const EkozProvider: React.FC<{ children: ReactNode; initialUser: User }> 
       }}
     >
       {children}
+      <ConfirmDialog data={confirmData} onResolve={resolveConfirm} />
     </EkozContext.Provider>
   );
 };

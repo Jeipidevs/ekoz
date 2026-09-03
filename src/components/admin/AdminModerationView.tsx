@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Pin, Trash2 } from 'lucide-react';
 import { api } from '../../services/api';
 import { Post } from '../../types';
 import { useEkoz } from '../../context/EkozContext';
 
 export const AdminModerationView: React.FC = () => {
-  const { triggerToast } = useEkoz();
+  const { triggerToast, confirm } = useEkoz();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const load = async () => {
-    setLoading(true);
+  const load = useCallback(async () => {
     try {
       setPosts(await api.listPosts());
     } catch (err: any) {
@@ -18,9 +17,9 @@ export const AdminModerationView: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [triggerToast]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   const handleTogglePin = async (post: Post) => {
     try {
@@ -32,7 +31,13 @@ export const AdminModerationView: React.FC = () => {
   };
 
   const handleDelete = async (post: Post) => {
-    if (!window.confirm('Remover esta publicação da timeline?')) return;
+    const ok = await confirm({
+      title: 'Remover publicação',
+      message: 'Remover esta publicação da timeline? Esta ação não pode ser desfeita.',
+      confirmLabel: 'Remover',
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await api.adminDeletePost(post.id);
       setPosts((prev) => prev.filter((p) => p.id !== post.id));

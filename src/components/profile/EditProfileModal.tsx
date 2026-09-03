@@ -34,7 +34,7 @@ const resizeImageToDataUrl = (file: File, maxSize = 400): Promise<string> =>
   });
 
 export const EditProfileModal: React.FC = () => {
-  const { profileOpen, setProfileOpen, user, setUser, triggerToast, logout } = useEkoz();
+  const { profileOpen, setProfileOpen, user, setUser, triggerToast, logout, confirm } = useEkoz();
 
   const [name, setName] = useState(user.name);
   const [headline, setHeadline] = useState(user.headline || '');
@@ -284,8 +284,14 @@ export const EditProfileModal: React.FC = () => {
           <div className="modal-footer-row mt-4">
             <button
               type="button"
-              onClick={() => {
-                if (window.confirm('Sair da sua conta Ekoz?')) logout();
+              onClick={async () => {
+                const ok = await confirm({
+                  title: 'Sair da conta',
+                  message: 'Deseja encerrar sua sessão no ecossistema Ekoz?',
+                  confirmLabel: 'Sair',
+                  danger: true,
+                });
+                if (ok) logout();
               }}
               className="btn btn-ghost"
             >

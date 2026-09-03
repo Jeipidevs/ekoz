@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Plus, Trash2, Pencil, X } from 'lucide-react';
 import { api } from '../../services/api';
 import { EventItem } from '../../types';
@@ -12,15 +12,14 @@ const emptyForm: Omit<EventItem, 'id' | 'spotsLeft' | 'isRegistered'> & { totalS
 };
 
 export const AdminEventsView: React.FC = () => {
-  const { triggerToast } = useEkoz();
+  const { triggerToast, confirm } = useEkoz();
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<typeof emptyForm>(emptyForm);
   const [showForm, setShowForm] = useState(false);
 
-  const load = async () => {
-    setLoading(true);
+  const load = useCallback(async () => {
     try {
       setEvents(await api.listEvents());
     } catch (err: any) {
@@ -28,9 +27,9 @@ export const AdminEventsView: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [triggerToast]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   const startEdit = (ev: EventItem) => {
     setEditingId(ev.id);
@@ -66,7 +65,13 @@ export const AdminEventsView: React.FC = () => {
   };
 
   const handleDelete = async (ev: EventItem) => {
-    if (!window.confirm(`Remover o evento "${ev.title}"?`)) return;
+    const ok = await confirm({
+      title: 'Remover evento',
+      message: `Remover o evento "${ev.title}"? Esta ação não pode ser desfeita.`,
+      confirmLabel: 'Remover',
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await api.adminDeleteEvent(ev.id);
       setEvents((prev) => prev.filter((e) => e.id !== ev.id));

@@ -7,6 +7,7 @@ import {
   Sparkles,
   Smartphone,
   ExternalLink,
+  X,
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -23,6 +24,7 @@ export const Navbar: React.FC = () => {
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const unreadNotifications = notifications.filter((n) => !n.read).length;
 
@@ -42,8 +44,33 @@ export const Navbar: React.FC = () => {
 
   const handleSelectMember = (member: (typeof members)[number]) => {
     setSearchQuery('');
+    setMobileSearchOpen(false);
     openChatWith(member);
   };
+
+  // Lista de resultados reutilizada na busca do desktop e na do mobile.
+  const searchResultsList =
+    query.length >= 2 ? (
+      <div className="navbar-search-results">
+        {searchResults.length > 0 ? (
+          searchResults.map((member) => (
+            <button
+              key={member.id}
+              onClick={() => handleSelectMember(member)}
+              className="navbar-search-result-item"
+            >
+              <img src={member.avatar} alt={member.name} className="search-result-avatar" />
+              <div className="search-result-text">
+                <span className="search-result-name">{member.name}</span>
+                <span className="search-result-meta">{member.headline || member.company}</span>
+              </div>
+            </button>
+          ))
+        ) : (
+          <div className="navbar-search-empty">Nenhum membro encontrado</div>
+        )}
+      </div>
+    ) : null;
 
   return (
     <header className="navbar-container">
@@ -61,34 +88,20 @@ export const Navbar: React.FC = () => {
             placeholder="Buscar membros por nome, empresa ou cargo..."
             className="navbar-search-input"
           />
-
-          {query.length >= 2 && (
-            <div className="navbar-search-results">
-              {searchResults.length > 0 ? (
-                searchResults.map((member) => (
-                  <button
-                    key={member.id}
-                    onClick={() => handleSelectMember(member)}
-                    className="navbar-search-result-item"
-                  >
-                    <img src={member.avatar} alt={member.name} className="search-result-avatar" />
-                    <div className="search-result-text">
-                      <span className="search-result-name">{member.name}</span>
-                      <span className="search-result-meta">
-                        {member.headline || member.company}
-                      </span>
-                    </div>
-                  </button>
-                ))
-              ) : (
-                <div className="navbar-search-empty">Nenhum membro encontrado</div>
-              )}
-            </div>
-          )}
+          {searchResultsList}
         </div>
       </div>
 
       <div className="navbar-right">
+        {/* Busca (só mobile — no desktop a barra fica à esquerda) */}
+        <button
+          onClick={() => setMobileSearchOpen((v) => !v)}
+          className="navbar-icon-btn navbar-mobile-search-toggle"
+          title="Buscar membros"
+        >
+          {mobileSearchOpen ? <X size={19} /> : <Search size={19} />}
+        </button>
+
         {/* WhatsApp Push status indicator */}
         <button
           onClick={() => setWhatsappPushOpen(true)}
@@ -194,6 +207,24 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Barra de busca mobile (aberta pelo ícone de lupa no header) */}
+      {mobileSearchOpen && (
+        <div className="navbar-mobile-search">
+          <div className="navbar-mobile-search-inner">
+            <Search size={16} className="search-icon" />
+            <input
+              type="text"
+              autoFocus
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar membros..."
+              className="navbar-search-input"
+            />
+          </div>
+          {searchResultsList}
+        </div>
+      )}
     </header>
   );
 };

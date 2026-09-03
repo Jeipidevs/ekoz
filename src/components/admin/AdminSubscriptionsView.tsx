@@ -14,7 +14,7 @@ const statusBadgeStyle = (status: string): React.CSSProperties | undefined => {
 };
 
 export const AdminSubscriptionsView: React.FC = () => {
-  const { triggerToast } = useEkoz();
+  const { triggerToast, confirm } = useEkoz();
   const [subscriptions, setSubscriptions] = useState<AdminSubscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +38,13 @@ export const AdminSubscriptionsView: React.FC = () => {
   }, [load]);
 
   const handleRevoke = async (sub: AdminSubscription) => {
-    if (!window.confirm(`Revogar a assinatura de ${sub.user.name}?`)) return;
+    const ok = await confirm({
+      title: 'Revogar assinatura',
+      message: `Revogar a assinatura de ${sub.user.name}? O acesso dele será encerrado.`,
+      confirmLabel: 'Revogar',
+      danger: true,
+    });
+    if (!ok) return;
     try {
       const updated = await api.adminRevokeSubscription(sub.id);
       setSubscriptions((prev) => prev.map((s) => (s.id === sub.id ? { ...s, status: updated.subscription.status } : s)));
