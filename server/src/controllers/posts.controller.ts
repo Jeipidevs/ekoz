@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../services/prisma.service.js';
 import { SocketService } from '../services/socket.service.js';
 import { sendServerError } from '../middleware/error.middleware.js';
+import { STAFF_ROLES } from '../utils/roles.js';
 
 export class PostsController {
   public static async listPosts(req: Request, res: Response): Promise<void> {
@@ -250,8 +251,8 @@ export class PostsController {
 
   public static async togglePin(req: Request, res: Response): Promise<void> {
     try {
-      if (!req.user || (req.user.role !== 'CEO' && req.user.role !== 'Admin')) {
-        res.status(403).json({ error: 'Permissão exclusiva para CEO ou Admin' });
+      if (!req.user || !STAFF_ROLES.includes(req.user.role)) {
+        res.status(403).json({ error: 'Permissão exclusiva para liderança/administração' });
         return;
       }
 
@@ -271,6 +272,29 @@ export class PostsController {
       res.json({ pinned: updated.pinned });
     } catch (error: any) {
       sendServerError(res, error, 'Erro ao fixar publicação');
+    }
+  }
+
+  public static async deletePost(req: Request, res: Response): Promise<void> {
+    try {
+      if (!req.user || !STAFF_ROLES.includes(req.user.role)) {
+        res.status(403).json({ error: 'Permissão exclusiva para liderança/administração' });
+        return;
+      }
+
+      const id = String(req.params.id);
+      const post = await prisma.post.findUnique({ where: { id } });
+
+      if (!post) {
+        res.status(404).json({ error: 'Publicação não encontrada' });
+        return;
+      }
+
+      await prisma.post.delete({ where: { id } });
+
+      res.json({ success: true });
+    } catch (error: any) {
+      sendServerError(res, error, 'Erro ao remover publicação');
     }
   }
 }

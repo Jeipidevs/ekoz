@@ -34,6 +34,7 @@ export class EventsController {
           description: event.description,
           image: event.image,
           spotsLeft,
+          totalSpots: event.totalSpots,
           isRegistered,
         };
       });

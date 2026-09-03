@@ -14,4 +14,15 @@ router.patch('/users/:userId/active', AdminController.updateActive);
 router.get('/subscriptions', AdminController.listSubscriptions);
 router.patch('/subscriptions/:subscriptionId/revoke', AdminController.revokeSubscription);
 
+router.post('/events', AdminController.createEvent);
+router.put('/events/:eventId', AdminController.updateEvent);
+router.delete('/events/:eventId', AdminController.deleteEvent);
+
+router.post('/cores', AdminController.createCore);
+router.put('/cores/:coreId', AdminController.updateCore);
+router.delete('/cores/:coreId', AdminController.deleteCore);
+
+router.put('/businesses/:businessId', AdminController.updateBusiness);
+router.delete('/businesses/:businessId', AdminController.deleteBusiness);
+
 export default router;

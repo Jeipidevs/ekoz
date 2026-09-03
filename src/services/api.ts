@@ -258,6 +258,50 @@ class ApiClient {
       method: 'PATCH',
     });
   }
+
+  // --- Admin: Eventos ---
+  public async adminCreateEvent(payload: Partial<EventItem>): Promise<any> {
+    return this.request<any>('/admin/events', { method: 'POST', body: JSON.stringify(payload) });
+  }
+
+  public async adminUpdateEvent(eventId: string, payload: Partial<EventItem>): Promise<any> {
+    return this.request<any>(`/admin/events/${eventId}`, { method: 'PUT', body: JSON.stringify(payload) });
+  }
+
+  public async adminDeleteEvent(eventId: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/admin/events/${eventId}`, { method: 'DELETE' });
+  }
+
+  // --- Admin: Marketplace (núcleos) ---
+  public async adminCreateCore(payload: { name: string; slug: string; icon?: string; description?: string }): Promise<any> {
+    return this.request<any>('/admin/cores', { method: 'POST', body: JSON.stringify(payload) });
+  }
+
+  public async adminUpdateCore(coreId: string, payload: Partial<ThematicCore>): Promise<any> {
+    return this.request<any>(`/admin/cores/${coreId}`, { method: 'PUT', body: JSON.stringify(payload) });
+  }
+
+  public async adminDeleteCore(coreId: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/admin/cores/${coreId}`, { method: 'DELETE' });
+  }
+
+  // --- Admin: Marketplace (negócios) ---
+  public async adminUpdateBusiness(businessId: string, payload: Partial<MarketplaceBusiness>): Promise<any> {
+    return this.request<any>(`/admin/businesses/${businessId}`, { method: 'PUT', body: JSON.stringify(payload) });
+  }
+
+  public async adminDeleteBusiness(businessId: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/admin/businesses/${businessId}`, { method: 'DELETE' });
+  }
+
+  // --- Admin: Moderação de posts ---
+  public async togglePostPin(postId: string): Promise<{ pinned: boolean }> {
+    return this.request<{ pinned: boolean }>(`/posts/${postId}/pin`, { method: 'PATCH' });
+  }
+
+  public async adminDeletePost(postId: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/posts/${postId}`, { method: 'DELETE' });
+  }
 }
 
 export const api = new ApiClient();

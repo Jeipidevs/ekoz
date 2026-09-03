@@ -141,4 +141,157 @@ export class AdminController {
       sendServerError(res, error, 'Erro ao revogar assinatura');
     }
   }
+
+  // --- Eventos ---
+  public static async createEvent(req: Request, res: Response): Promise<void> {
+    try {
+      const { title, type, date, time, location, speaker, speakerRole, description, image, totalSpots } = req.body;
+
+      if (!title || !type || !date || !location) {
+        res.status(400).json({ error: 'Título, tipo, data e local são obrigatórios' });
+        return;
+      }
+
+      const event = await prisma.event.create({
+        data: {
+          title,
+          type,
+          date,
+          time: time || '',
+          location,
+          speakerName: speaker || '',
+          speakerRole: speakerRole || '',
+          description: description || '',
+          image: image || '',
+          totalSpots: totalSpots || 50,
+        },
+      });
+
+      res.status(201).json({ event });
+    } catch (error: any) {
+      sendServerError(res, error, 'Erro ao criar evento');
+    }
+  }
+
+  public static async updateEvent(req: Request, res: Response): Promise<void> {
+    try {
+      const eventId = req.params.eventId as string;
+      const { title, type, date, time, location, speaker, speakerRole, description, image, totalSpots } = req.body;
+
+      const event = await prisma.event.update({
+        where: { id: eventId },
+        data: {
+          ...(title !== undefined && { title }),
+          ...(type !== undefined && { type }),
+          ...(date !== undefined && { date }),
+          ...(time !== undefined && { time }),
+          ...(location !== undefined && { location }),
+          ...(speaker !== undefined && { speakerName: speaker }),
+          ...(speakerRole !== undefined && { speakerRole }),
+          ...(description !== undefined && { description }),
+          ...(image !== undefined && { image }),
+          ...(totalSpots !== undefined && { totalSpots }),
+        },
+      });
+
+      res.json({ event });
+    } catch (error: any) {
+      sendServerError(res, error, 'Erro ao atualizar evento');
+    }
+  }
+
+  public static async deleteEvent(req: Request, res: Response): Promise<void> {
+    try {
+      const eventId = req.params.eventId as string;
+      await prisma.event.delete({ where: { id: eventId } });
+      res.json({ success: true });
+    } catch (error: any) {
+      sendServerError(res, error, 'Erro ao remover evento');
+    }
+  }
+
+  // --- Marketplace: Núcleos Temáticos ---
+  public static async createCore(req: Request, res: Response): Promise<void> {
+    try {
+      const { name, slug, icon, description } = req.body;
+
+      if (!name || !slug) {
+        res.status(400).json({ error: 'Nome e slug são obrigatórios' });
+        return;
+      }
+
+      const core = await prisma.thematicCore.create({
+        data: { name, slug, icon: icon || 'Layers', description: description || '' },
+      });
+
+      res.status(201).json({ core });
+    } catch (error: any) {
+      sendServerError(res, error, 'Erro ao criar núcleo temático');
+    }
+  }
+
+  public static async updateCore(req: Request, res: Response): Promise<void> {
+    try {
+      const coreId = req.params.coreId as string;
+      const { name, slug, icon, description } = req.body;
+
+      const core = await prisma.thematicCore.update({
+        where: { id: coreId },
+        data: {
+          ...(name !== undefined && { name }),
+          ...(slug !== undefined && { slug }),
+          ...(icon !== undefined && { icon }),
+          ...(description !== undefined && { description }),
+        },
+      });
+
+      res.json({ core });
+    } catch (error: any) {
+      sendServerError(res, error, 'Erro ao atualizar núcleo temático');
+    }
+  }
+
+  public static async deleteCore(req: Request, res: Response): Promise<void> {
+    try {
+      const coreId = req.params.coreId as string;
+      await prisma.thematicCore.delete({ where: { id: coreId } });
+      res.json({ success: true });
+    } catch (error: any) {
+      sendServerError(res, error, 'Erro ao remover núcleo temático');
+    }
+  }
+
+  // --- Marketplace: Negócios ---
+  public static async updateBusiness(req: Request, res: Response): Promise<void> {
+    try {
+      const businessId = req.params.businessId as string;
+      const { name, headline, description, verified, featured, coreId } = req.body;
+
+      const business = await prisma.marketplaceBusiness.update({
+        where: { id: businessId },
+        data: {
+          ...(name !== undefined && { name }),
+          ...(headline !== undefined && { headline }),
+          ...(description !== undefined && { description }),
+          ...(verified !== undefined && { verified }),
+          ...(featured !== undefined && { featured }),
+          ...(coreId !== undefined && { coreId }),
+        },
+      });
+
+      res.json({ business });
+    } catch (error: any) {
+      sendServerError(res, error, 'Erro ao atualizar negócio do marketplace');
+    }
+  }
+
+  public static async deleteBusiness(req: Request, res: Response): Promise<void> {
+    try {
+      const businessId = req.params.businessId as string;
+      await prisma.marketplaceBusiness.delete({ where: { id: businessId } });
+      res.json({ success: true });
+    } catch (error: any) {
+      sendServerError(res, error, 'Erro ao remover negócio do marketplace');
+    }
+  }
 }

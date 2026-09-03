@@ -3554,4 +3554,33 @@
   background: rgba(203, 165, 72, 0.08);
 }
 
+.admin-content-form {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.admin-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-form-header h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.65rem;
+}
+
+.admin-content-form textarea.ekoz-input {
+  resize: vertical;
+  font-family: inherit;
+}
+
 

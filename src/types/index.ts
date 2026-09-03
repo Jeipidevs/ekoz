@@ -149,6 +149,7 @@ export interface EventItem {
   description: string;
   image: string;
   spotsLeft: number;
+  totalSpots?: number;
   isRegistered?: boolean;
 }
 
