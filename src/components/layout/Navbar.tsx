@@ -173,7 +173,14 @@ export const Navbar: React.FC = () => {
           title="Ver e editar meu perfil"
         >
           <div className="user-avatar-wrap">
-            <img src={user.avatar} alt={user.name} className="user-avatar-img" />
+            <img
+              src={user.avatar || '/default-avatar.svg'}
+              alt={user.name}
+              className="user-avatar-img"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/default-avatar.svg';
+              }}
+            />
             <span className="online-indicator"></span>
           </div>
           <div className="user-info-text hide-tablet">

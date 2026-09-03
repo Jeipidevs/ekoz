@@ -118,7 +118,7 @@ export const Sidebar: React.FC = () => {
             style={{ fontSize: '0.78rem', justifyContent: 'flex-start' }}
           >
             <Sparkles size={14} color="#25D366" />
-            <span>Simulador WhatsApp</span>
+            <span>Notificações WhatsApp</span>
           </button>
           <button
             onClick={() => setCheckoutOpen(true)}

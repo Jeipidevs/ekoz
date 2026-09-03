@@ -143,7 +143,7 @@ export class AuthController {
           ...(name && { name }),
           ...(headline !== undefined && { headline }),
           ...(company !== undefined && { company }),
-          ...(avatar && { avatar }),
+          ...(avatar !== undefined && { avatar }),
           ...(bio !== undefined && { bio }),
           ...(location !== undefined && { location }),
           ...(whatsapp !== undefined && { whatsapp }),

@@ -193,6 +193,12 @@
   text-overflow: ellipsis;
 }
 
+.avatar-upload-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .navbar-right {
   display: flex;
   align-items: center;
@@ -2873,16 +2879,25 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
+  align-items: stretch;
+  padding-top: 0.5rem;
 }
 
 .checkout-plan-card {
+  display: flex;
+  flex-direction: column;
   background: rgba(14, 26, 20, 0.75);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: 1.25rem;
-  cursor: pointer;
   position: relative;
   transition: all var(--transition-fast);
+}
+
+/* Empurra o CTA de cada card para a base, alinhando os botões mesmo
+   quando os cards têm alturas diferentes (o anual tem a oferta à vista). */
+.checkout-plan-card > a {
+  margin-top: auto;
 }
 
 .checkout-plan-card:hover {
@@ -3015,8 +3030,7 @@
 }
 
 .plan-price-row-highlight {
-  justify-content: flex-end;
-  text-align: right;
+  align-items: baseline;
 }
 
 .plan-price-highlight {

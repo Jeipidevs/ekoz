@@ -1,7 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useEkoz } from '../../context/EkozContext';
 import { api } from '../../services/api';
-import { X, Save, LogOut, ShieldCheck } from 'lucide-react';
+import { X, Save, LogOut, ShieldCheck, Upload, Trash2 } from 'lucide-react';
+
+// Redimensiona a imagem escolhida no próprio navegador (máx 400px, JPEG) e
+// devolve um data URL base64 leve — evita subir arquivo pesado e dispensa
+// storage externo. Avatares ficam ~20-40KB, adequados pra coluna do banco.
+const resizeImageToDataUrl = (file: File, maxSize = 400): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas não suportado'));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = () => reject(new Error('Imagem inválida'));
+      img.src = reader.result as string;
+    };
+    reader.onerror = () => reject(new Error('Falha ao ler o arquivo'));
+    reader.readAsDataURL(file);
+  });
 
 export const EditProfileModal: React.FC = () => {
   const { profileOpen, setProfileOpen, user, setUser, triggerToast, logout } = useEkoz();
@@ -17,8 +47,29 @@ export const EditProfileModal: React.FC = () => {
   const [linkedin, setLinkedin] = useState(user.linkedin || '');
   const [skills, setSkills] = useState((user.skills || []).join(', '));
   const [saving, setSaving] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!profileOpen) return null;
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoError(null);
+    if (!file.type.startsWith('image/')) {
+      setPhotoError('Selecione um arquivo de imagem.');
+      return;
+    }
+    try {
+      const dataUrl = await resizeImageToDataUrl(file);
+      setAvatar(dataUrl);
+    } catch (err: any) {
+      setPhotoError(err.message || 'Não foi possível processar a imagem.');
+    } finally {
+      // permite reselecionar o mesmo arquivo depois
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,14 +198,42 @@ export const EditProfileModal: React.FC = () => {
           </div>
 
           <div className="form-group">
-            <label className="form-label">URL da Foto de Perfil</label>
+            <label className="form-label">Foto de Perfil</label>
             <input
-              type="url"
-              value={avatar}
-              onChange={(e) => setAvatar(e.target.value)}
-              placeholder="https://..."
-              className="ekoz-input"
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              style={{ display: 'none' }}
             />
+            <div className="avatar-upload-row">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="btn btn-secondary btn-sm"
+              >
+                <Upload size={14} />
+                <span>{avatar ? 'Trocar foto' : 'Enviar foto'}</span>
+              </button>
+              {avatar && (
+                <button
+                  type="button"
+                  onClick={() => setAvatar('')}
+                  className="btn btn-ghost btn-sm"
+                >
+                  <Trash2 size={14} />
+                  <span>Remover</span>
+                </button>
+              )}
+            </div>
+            {photoError && (
+              <p className="text-muted mt-2" style={{ color: '#F87171', fontSize: '0.78rem' }}>
+                {photoError}
+              </p>
+            )}
+            <p className="text-muted mt-2" style={{ fontSize: '0.72rem' }}>
+              Envie uma imagem da galeria ou do computador. Ela é otimizada automaticamente.
+            </p>
           </div>
 
           <div className="form-row-2">
